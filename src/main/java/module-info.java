@@ -6,5 +6,6 @@ module uet.oop.bombermanoop {
 
     opens uet.oop.bombermanoop to javafx.fxml;
     opens assets.levels;
+    opens assets.textures;
     exports uet.oop.bombermanoop;
 }
