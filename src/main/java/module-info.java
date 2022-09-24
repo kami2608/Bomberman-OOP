@@ -8,4 +8,5 @@ module uet.oop.bombermanoop {
     opens assets.levels;
     opens assets.textures;
     exports uet.oop.bombermanoop;
+    exports uet.oop.bombermanoop.components;
 }
