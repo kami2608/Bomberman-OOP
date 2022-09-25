@@ -14,6 +14,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.control.Cell;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import uet.oop.bombermanoop.components.BombComponent;
 import uet.oop.bombermanoop.components.PlayerComponent;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
@@ -70,6 +71,16 @@ public class BombermanFactory implements EntityFactory{
                 .with(new CellMoveComponent(TILE_SIZE, TILE_SIZE, PLAYER_SPEED))
                 .with(new AStarMoveComponent(FXGL.<BombermanApp>getAppCast().getGrid()))
                 .with(new PlayerComponent())
+                .build();
+    }
+
+    @Spawns("bomb")
+    public Entity newBomb(SpawnData data) {
+        return entityBuilder(data)
+                .type(BOMB)
+                .viewWithBBox(texture("bomb.png", TILE_SIZE, TILE_SIZE))
+                .with(new BombComponent(data.get("radius")))
+                .atAnchored(new Point2D(20, 20), new Point2D(data.getX() + TILE_SIZE / 2, data.getY() + TILE_SIZE / 2))
                 .build();
     }
 

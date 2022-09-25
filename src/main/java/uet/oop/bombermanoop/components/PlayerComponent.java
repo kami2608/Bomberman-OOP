@@ -19,12 +19,16 @@ import java.util.concurrent.Phaser;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 
 public class PlayerComponent extends Component {
+    public final static int FRAME_SIZE = 38;
+
     public AStarMoveComponent astar;
     public CellMoveComponent cell;
     private AnimatedTexture texture;
     private AnimationChannel animIdle, animWalkX, animWalkUp, animWalkDown;
 
-    public final static int FRAME_SIZE = 38;
+    private int bombsPlaced = 0 ;
+    private int bombsMaximum = 1;
+    private int explosionRadius = 40;
 
     public PlayerComponent() {
         Image imageX = image("playerX.png");
@@ -82,6 +86,23 @@ public class PlayerComponent extends Component {
             texture.loopAnimationChannel(animWalkUp);
     }
 
-    public void placeBomb() {}
+    public void placeBomb() {
+        int radius = 40;
+        if (this.bombsPlaced >= this.bombsMaximum) return;
+
+        increaseBombsPlaced();
+        double x = cell.getCellX() * radius;
+        double y = cell.getCellY() * radius;
+        Entity bomb = spawn("bomb", new SpawnData(x, y)
+                .put("radius", this.explosionRadius));
+
+        getGameTimer().runOnceAfter(() -> {
+            bomb.getComponent(BombComponent.class).explode(x, y, bomb);
+            decreaseBombsPlaced();
+        }, Duration.seconds(2));
+    }
+
+    public void increaseBombsPlaced(){this.bombsPlaced++;}
+    public void decreaseBombsPlaced(){this.bombsPlaced--;}
 
 }

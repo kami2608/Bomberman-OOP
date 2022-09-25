@@ -25,6 +25,9 @@ public class BombermanApp extends GameApplication{
 
     public static final int TILE_SIZE = 40;
 
+    public static final int HEIGHT = 600;
+    public static final int WIDTH = 600;
+
     private Entity player;
     private AStarGrid grid;
     private PlayerComponent playerComponent;
@@ -36,8 +39,8 @@ public class BombermanApp extends GameApplication{
     @Override
     protected void initSettings(GameSettings settings) {
         settings.setTitle("Bomberman");
-        settings.setHeight(600);
-        settings.setWidth(600);
+        settings.setHeight(HEIGHT);
+        settings.setWidth(WIDTH);
         settings.setVersion("0.1");
     }
 
@@ -79,7 +82,7 @@ public class BombermanApp extends GameApplication{
 
         getInput().addAction(new UserAction("Place Bomb") {
             @Override
-            protected void onAction() {
+            protected void onActionBegin() {
                 playerComponent.placeBomb();
             }
         }, KeyCode.SPACE);
@@ -110,7 +113,14 @@ public class BombermanApp extends GameApplication{
     @Override
     protected void initPhysics() {}
 
+    public void onEntityDestroyed(Entity e) {
+        int cellX = (int)((e.getX() + 20) / TILE_SIZE);
+        int cellY = (int)((e.getY() + 20) / TILE_SIZE);
+        grid.get(cellX, cellY).setState(CellState.WALKABLE);
+    }
+
     public static void main(String[] args) {
         launch(args);
     }
+
 }

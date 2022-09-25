@@ -1,2 +1,92 @@
-package uet.oop.bombermanoop.components;public class BombComponent {
+package uet.oop.bombermanoop.components;
+
+import com.almasb.fxgl.dsl.FXGL;
+import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.component.Component;
+import com.almasb.fxgl.pathfinding.CellState;
+import javafx.geometry.Point2D;
+import javafx.util.Duration;
+import uet.oop.bombermanoop.BombermanApp;
+
+import static com.almasb.fxgl.dsl.FXGL.getGameWorld;
+import static uet.oop.bombermanoop.BombermanApp.*;
+import static uet.oop.bombermanoop.BombermanType.*;
+
+public class BombComponent extends Component {
+    private int radius;
+
+    public BombComponent(int radius) {
+        this.radius = radius;
+    }
+
+    @Override
+    public void onAdded() {
+        FXGL.<BombermanApp>getAppCast().getGrid()
+                .get((int) this.getEntity().getX(), (int) this.getEntity().getY())
+                .setState(CellState.NOT_WALKABLE);
+
+    }
+
+    public void explode(double x, double y, Entity bomb) {
+        FXGL.getGameTimer().runOnceAfter(bomb::removeFromWorld, Duration.seconds(0.2));
+
+        removeEntityXRight(x, y);
+        removeEntityYDown(x, y);
+        removeEntityYUp(x, y);
+        removeEntityXLeft(x, y);
+    }
+
+    private void removeEntity(double x, double y) {
+        getGameWorld().getEntitiesAt(new Point2D(x, y))
+                .stream()
+                .forEach(e -> {
+                    if (!e.isType(WALL)) {
+                        FXGL.<BombermanApp>getAppCast().onEntityDestroyed(e);
+                        e.removeFromWorld();
+                        return;
+                    }
+
+                });
+    }
+
+    private void removeEntityYDown(double x, double y) {
+        for (double i = y; i <= y + this.radius; i = i + 40) {
+            if (i > (WIDTH - 80)) {
+                break;
+            }
+
+            removeEntity(x, i);
+        }
+    }
+
+    private void removeEntityYUp(double x, double y) {
+        for (double i = y; i >= y - this.radius; i = i - 40) {
+            if (i < 40) {
+                break;
+            }
+
+            removeEntity(x, i);
+        }
+    }
+
+    private void removeEntityXLeft(double x, double y) {
+        for (double i = x; i <= x + this.radius; i = i + 40) {
+            if (i > (WIDTH - 80)) {
+                break;
+            }
+
+            removeEntity(i, y);
+        }
+    }
+
+    private void removeEntityXRight(double x, double y) {
+        for (double i = x; i >= x - this.radius; i = i - 40) {
+            if (i < 40) {
+                break;
+            }
+
+            removeEntity(i, y);
+        }
+    }
+
 }
