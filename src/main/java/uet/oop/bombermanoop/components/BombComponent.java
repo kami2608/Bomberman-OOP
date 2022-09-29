@@ -8,12 +8,13 @@ import javafx.geometry.Point2D;
 import javafx.util.Duration;
 import uet.oop.bombermanoop.BombermanApp;
 
-import static com.almasb.fxgl.dsl.FXGL.getGameWorld;
+import static com.almasb.fxgl.dsl.FXGL.*;
 import static uet.oop.bombermanoop.BombermanApp.*;
 import static uet.oop.bombermanoop.BombermanType.*;
 
 public class BombComponent extends Component {
     private int radius;
+    private boolean hasWall;
 
     public BombComponent(int radius) {
         this.radius = radius;
@@ -45,13 +46,24 @@ public class BombComponent extends Component {
                         e.removeFromWorld();
                         return;
                     }
+                    else {
+                        this.hasWall = true;
+                        return;
+                    }
 
                 });
+        if(!this.hasWall) {
+            Entity flame = spawn("flame", x, y);
+            getGameTimer().runOnceAfter(() -> {
+                flame.removeFromWorld();
+            }, Duration.seconds(0.5));
+        }
     }
 
     private void removeEntityYDown(double x, double y) {
+        this.hasWall = false;
         for (double i = y; i <= y + this.radius; i = i + 40) {
-            if (i > (WIDTH - 80)) {
+            if (i > (WIDTH - 80) || hasWall) {
                 break;
             }
 
@@ -60,8 +72,9 @@ public class BombComponent extends Component {
     }
 
     private void removeEntityYUp(double x, double y) {
+        this.hasWall = false;
         for (double i = y; i >= y - this.radius; i = i - 40) {
-            if (i < 40) {
+            if (i < 40 || hasWall) {
                 break;
             }
 
@@ -70,8 +83,9 @@ public class BombComponent extends Component {
     }
 
     private void removeEntityXLeft(double x, double y) {
+        this.hasWall = false;
         for (double i = x; i <= x + this.radius; i = i + 40) {
-            if (i > (WIDTH - 80)) {
+            if (i > (WIDTH - 80) || hasWall) {
                 break;
             }
 
@@ -80,8 +94,9 @@ public class BombComponent extends Component {
     }
 
     private void removeEntityXRight(double x, double y) {
+        this.hasWall = false;
         for (double i = x; i >= x - this.radius; i = i - 40) {
-            if (i < 40) {
+            if (i < 40 || hasWall) {
                 break;
             }
 

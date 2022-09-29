@@ -1,20 +1,27 @@
 package uet.oop.bombermanoop;
 
 import com.almasb.fxgl.dsl.FXGL;
+import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.EntityFactory;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.Spawns;
 import com.almasb.fxgl.entity.components.CollidableComponent;
+import com.almasb.fxgl.particle.ParticleComponent;
+import com.almasb.fxgl.particle.ParticleEmitters;
 import com.almasb.fxgl.pathfinding.CellMoveComponent;
 import com.almasb.fxgl.pathfinding.astar.AStarMoveComponent;
+import com.almasb.fxgl.physics.BoundingShape;
+import com.almasb.fxgl.physics.HitBox;
 import com.almasb.fxgl.physics.PhysicsComponent;
 import com.almasb.fxgl.physics.box2d.dynamics.BodyType;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Cell;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 import uet.oop.bombermanoop.components.BombComponent;
+import uet.oop.bombermanoop.components.EnemyComponent;
 import uet.oop.bombermanoop.components.PlayerComponent;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
@@ -23,7 +30,8 @@ import static uet.oop.bombermanoop.BombermanType.*;
 
 public class BombermanFactory implements EntityFactory{
 
-    private static final int PLAYER_SPEED = 180;
+    private static final int PLAYER_SPEED = 150;
+    private static final int ENEMY_SPEED = 50;
 
     @Spawns("BG")
     public Entity newBackground(SpawnData data) {
@@ -67,6 +75,7 @@ public class BombermanFactory implements EntityFactory{
                 .type(PLAYER)
                 .atAnchored(new Point2D(20, 20), new Point2D(20, 20))
                 .at(new Point2D(40, 40))
+                .bbox(new HitBox(new Point2D(2, 2), BoundingShape.circle(18)))
                 .with(new CollidableComponent(true))
                 .with(new CellMoveComponent(TILE_SIZE, TILE_SIZE, PLAYER_SPEED))
                 .with(new AStarMoveComponent(FXGL.<BombermanApp>getAppCast().getGrid()))
@@ -79,8 +88,50 @@ public class BombermanFactory implements EntityFactory{
         return entityBuilder(data)
                 .type(BOMB)
                 .viewWithBBox(texture("bomb.png", TILE_SIZE, TILE_SIZE))
+                //.bbox(new HitBox(new Point2D(2, 2), BoundingShape.circle(20)))
                 .with(new BombComponent(data.get("radius")))
                 .atAnchored(new Point2D(20, 20), new Point2D(data.getX() + TILE_SIZE / 2, data.getY() + TILE_SIZE / 2))
+                .build();
+    }
+
+    @Spawns("enemy")
+    public Entity newEnemy(SpawnData data) {
+        return entityBuilder(data)
+                .type(ENEMY)
+                .atAnchored(new Point2D(20, 20), new Point2D(20, 20))
+                .at(new Point2D(data.getX(), data.getY()))
+                //.at(new Point2D(40, 40))
+                .bbox(new HitBox(new Point2D(5, 5), BoundingShape.circle(18)))
+                .with(new CollidableComponent(true))
+                .with(new CellMoveComponent(TILE_SIZE, TILE_SIZE, ENEMY_SPEED))
+                .with(new AStarMoveComponent(FXGL.<BombermanApp>getAppCast().getGrid()))
+                .with(new EnemyComponent())
+                .build();
+    }
+
+    @Spawns("flame")
+    public Entity newFlame(SpawnData data) {
+
+        return entityBuilder(data)
+                .type(FLAME)
+                .view(texture("flame.png").toAnimatedTexture(16, Duration.seconds(0.3)).play())
+                .with(new CollidableComponent(true))
+                .bbox(new HitBox(new Point2D(5, 5), BoundingShape.circle(20)))
+                .build();
+    }
+
+    @Spawns("playerDied")
+    public Entity newPlayerDied(SpawnData data) {
+        return entityBuilder(data)
+                .view(texture("playerDied.png").toAnimatedTexture(7, Duration.seconds(0.3)).play())
+                .build();
+
+    }
+
+    @Spawns("enemyDied")
+    public Entity newEnemyDied(SpawnData data) {
+        return entityBuilder(data)
+                .view(texture("enemyDied.png").toAnimatedTexture(5, Duration.seconds(0.3)).play())
                 .build();
     }
 

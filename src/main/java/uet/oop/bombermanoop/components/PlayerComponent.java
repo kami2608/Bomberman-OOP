@@ -24,9 +24,9 @@ public class PlayerComponent extends Component {
     public AStarMoveComponent astar;
     public CellMoveComponent cell;
     private AnimatedTexture texture;
-    private AnimationChannel animIdle, animWalkX, animWalkUp, animWalkDown;
+    private AnimationChannel animIdle, animWalkX, animWalkUp, animWalkDown, animDied;
 
-    private int bombsPlaced = 0 ;
+    private int bombsPlaced = 0;
     private int bombsMaximum = 1;
     private int explosionRadius = 40;
 
@@ -34,11 +34,13 @@ public class PlayerComponent extends Component {
         Image imageX = image("playerX.png");
         Image imageUp = image("playerUp.png");
         Image imageDown = image("playerDown.png");
+        Image imageDied = image("playerDied.png");
 
         animIdle = new AnimationChannel(imageDown, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.3), 0, 0);
         animWalkX = new AnimationChannel(imageX, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.3), 0, 2);
         animWalkDown = new AnimationChannel(imageDown, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.3), 0, 2);
         animWalkUp = new AnimationChannel(imageUp, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.3), 0, 2);
+        animDied = new AnimationChannel(imageDied, 7, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.8), 0, 6);
 
         texture = new AnimatedTexture(animIdle);
 
@@ -54,8 +56,8 @@ public class PlayerComponent extends Component {
 
     @Override
     public void onUpdate(double tpf) {
-        if(!astar.isMoving()) {
-            if(texture.getAnimationChannel() != animIdle)
+        if (!astar.isMoving()) {
+            if (texture.getAnimationChannel() != animIdle)
                 texture.loopAnimationChannel(animIdle);
         }
     }
@@ -63,26 +65,26 @@ public class PlayerComponent extends Component {
     public void left() {
         getEntity().setScaleX(1);
         astar.moveToLeftCell();
-        if(texture.getAnimationChannel() != animWalkX)
+        if (texture.getAnimationChannel() != animWalkX)
             texture.loopAnimationChannel(animWalkX);
     }
 
     public void right() {
         getEntity().setScaleX(-1);
         astar.moveToRightCell();
-        if(texture.getAnimationChannel() != animWalkX)
+        if (texture.getAnimationChannel() != animWalkX)
             texture.loopAnimationChannel(animWalkX);
     }
 
     public void down() {
         astar.moveToDownCell();
-        if(texture.getAnimationChannel() != animWalkDown)
+        if (texture.getAnimationChannel() != animWalkDown)
             texture.loopAnimationChannel(animWalkDown);
     }
 
     public void up() {
         astar.moveToUpCell();
-        if(texture.getAnimationChannel() != animWalkUp)
+        if (texture.getAnimationChannel() != animWalkUp)
             texture.loopAnimationChannel(animWalkUp);
     }
 
@@ -102,7 +104,22 @@ public class PlayerComponent extends Component {
         }, Duration.seconds(2));
     }
 
-    public void increaseBombsPlaced(){this.bombsPlaced++;}
-    public void decreaseBombsPlaced(){this.bombsPlaced--;}
+    public void playerDied() {
+        if (texture.getAnimationChannel() != animDied)
+            texture("playerDied.png").toAnimatedTexture(7, Duration.seconds(1)).play();
+    }
+
+    public void explodeBombCollide(Entity bomb) {
+        bomb.getComponent(BombComponent.class).explode(bomb.getX(), bomb.getY(), bomb);
+        decreaseBombsPlaced();
+    }
+
+    public void increaseBombsPlaced() {
+        this.bombsPlaced++;
+    }
+
+    public void decreaseBombsPlaced() {
+        this.bombsPlaced--;
+    }
 
 }

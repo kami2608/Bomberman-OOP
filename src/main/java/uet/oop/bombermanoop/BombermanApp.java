@@ -8,20 +8,25 @@ import com.almasb.fxgl.app.scene.SimpleGameMenu;
 import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.level.Level;
 import com.almasb.fxgl.entity.level.text.TextLevelLoader;
 import com.almasb.fxgl.input.UserAction;
 import com.almasb.fxgl.pathfinding.CellState;
 import com.almasb.fxgl.pathfinding.astar.AStarGrid;
+import com.almasb.fxgl.physics.CollisionHandler;
 import javafx.scene.input.KeyCode;
+import javafx.util.Duration;
+import uet.oop.bombermanoop.components.EnemyComponent;
 import uet.oop.bombermanoop.components.PlayerComponent;
 
 import java.util.Map;
+import java.util.Timer;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 import static uet.oop.bombermanoop.BombermanType.*;
 
-public class BombermanApp extends GameApplication{
+public class BombermanApp extends GameApplication {
 
     public static final int TILE_SIZE = 40;
 
@@ -45,10 +50,12 @@ public class BombermanApp extends GameApplication{
     }
 
     @Override
-    protected void initGameVars(Map<String, Object> vars) {}
+    protected void initGameVars(Map<String, Object> vars) {
+    }
 
     @Override
-    protected void initUI() {}
+    protected void initUI() {
+    }
 
     @Override
     protected void initInput() {
@@ -98,8 +105,8 @@ public class BombermanApp extends GameApplication{
 
         spawn("BG");
 
-        grid = AStarGrid.fromWorld(FXGL.getGameWorld(), 600, 600, 40, 40, type -> {
-            if(type.equals(WALL) || type.equals(BRICK))
+        grid = AStarGrid.fromWorld(FXGL.getGameWorld(), WIDTH, HEIGHT, TILE_SIZE, TILE_SIZE, type -> {
+            if (type.equals(WALL) || type.equals(BRICK))
                 return CellState.NOT_WALKABLE;
 
             return CellState.WALKABLE;
@@ -108,14 +115,59 @@ public class BombermanApp extends GameApplication{
         player = FXGL.spawn("player");
         playerComponent = player.getComponent(PlayerComponent.class);
 
+        spawn("enemy", new SpawnData(160, 40));
+        spawn("enemy", new SpawnData(520, 520));
+        spawn("enemy", new SpawnData(480, 80));
+
     }
 
     @Override
-    protected void initPhysics() {}
+    protected void initPhysics() {
+
+        onCollision(PLAYER, ENEMY, (player, enemy) -> {
+            if(Math.abs(player.getPosition().getX() - enemy.getPosition().getX()) < 20 &&
+            Math.abs(player.getPosition().getY() - enemy.getPosition().getY()) < 20) {
+                System.out.println("player die ne");
+                hitTaken(player);
+            }
+        });
+
+        onCollision(PLAYER, FLAME, (player, flame) -> {
+            if (Math.abs(flame.getPosition().getX() - player.getPosition().getX()) < 20 &&
+                    Math.abs(flame.getPosition().getY() - player.getPosition().getY()) < 20) {
+                System.out.println("player die ne 2");
+                hitTaken(player);
+            }
+        });
+
+        onCollision(ENEMY, FLAME, (enemy, flame) -> {
+            if (Math.abs(flame.getPosition().getX() - enemy.getPosition().getX()) < 20 &&
+                    Math.abs(flame.getPosition().getY() - enemy.getPosition().getY()) < 20) {
+                System.out.println("enemy die ne");
+                enemy.removeFromWorld();
+                Entity enemyDied = spawn("enemyDied", enemy.getX(), enemy.getY());
+                getGameTimer().runOnceAfter(() -> {
+                    enemyDied.removeFromWorld();
+                }, Duration.seconds(0.5));
+            }
+        });
+    }
+
+    private void hitTaken(Entity player) {
+        //playerComponent.playerDied();
+        player.removeFromWorld();
+        Entity playerDied = spawn("playerDied", player.getX(), player.getY());
+        getGameTimer().runOnceAfter(() -> {
+            playerDied.removeFromWorld();
+        }, Duration.seconds(0.5));
+
+//        this.player = spawn("player");
+//        this.playerComponent = this.player.getComponent(PlayerComponent.class);
+    }
 
     public void onEntityDestroyed(Entity e) {
-        int cellX = (int)((e.getX() + 20) / TILE_SIZE);
-        int cellY = (int)((e.getY() + 20) / TILE_SIZE);
+        int cellX = (int) ((e.getX() + 20) / TILE_SIZE);
+        int cellY = (int) ((e.getY() + 20) / TILE_SIZE);
         grid.get(cellX, cellY).setState(CellState.WALKABLE);
     }
 
