@@ -22,9 +22,10 @@ public class BombComponent extends Component {
 
     @Override
     public void onAdded() {
-        FXGL.<BombermanApp>getAppCast().getGrid()
-                .get((int) this.getEntity().getX(), (int) this.getEntity().getY())
-                .setState(CellState.NOT_WALKABLE);
+//        FXGL.<BombermanApp>getAppCast().getGrid()
+//                .get((int) this.getEntity().getX(), (int) this.getEntity().getY())
+//                .setState(CellState.NOT_WALKABLE);
+        FXGL.<BombermanApp>getAppCast().NotWalkable(this.getEntity());
 
     }
 
@@ -44,12 +45,23 @@ public class BombComponent extends Component {
                     if (!e.isType(WALL)) {
                         FXGL.<BombermanApp>getAppCast().onEntityDestroyed(e);
                         e.removeFromWorld();
+                        if(e.isType(BRICK)) {
+                            Entity brickExpode = spawn("brick", e.getX(), e.getY());
+                            getGameTimer().runOnceAfter(() -> {
+                                brickExpode.removeFromWorld();
+                            }, Duration.seconds(0.5));
+                        }
+
                         return;
                     }
                     else {
                         this.hasWall = true;
                         return;
                     }
+//                    if(e.isType(WALL)) {
+//                        this.hasWall = true;
+//                        return;
+//                    }
 
                 });
         if(!this.hasWall) {

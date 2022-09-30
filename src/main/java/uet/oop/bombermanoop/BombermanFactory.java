@@ -22,6 +22,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import uet.oop.bombermanoop.components.BombComponent;
 import uet.oop.bombermanoop.components.EnemyComponent;
+import uet.oop.bombermanoop.components.OnealComponent;
 import uet.oop.bombermanoop.components.PlayerComponent;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
@@ -58,6 +59,14 @@ public class BombermanFactory implements EntityFactory{
                 .build();
     }
 
+    @Spawns("brick")
+    public Entity newBrickExplode(SpawnData data) {
+        return entityBuilder(data)
+                .view(texture("brickExplode.png").toAnimatedTexture(6, Duration.seconds(1)).play())
+                .build();
+    }
+
+
     @Spawns("1")
     public Entity newBlock(SpawnData data) {
         PhysicsComponent physics = new PhysicsComponent();
@@ -87,8 +96,8 @@ public class BombermanFactory implements EntityFactory{
     public Entity newBomb(SpawnData data) {
         return entityBuilder(data)
                 .type(BOMB)
-                .viewWithBBox(texture("bomb.png", TILE_SIZE, TILE_SIZE))
-                //.bbox(new HitBox(new Point2D(2, 2), BoundingShape.circle(20)))
+                .view(texture("bomb.png").toAnimatedTexture(12, Duration.seconds(2)).play())
+                .bbox(new HitBox(new Point2D(2, 2), BoundingShape.circle(18)))
                 .with(new BombComponent(data.get("radius")))
                 .atAnchored(new Point2D(20, 20), new Point2D(data.getX() + TILE_SIZE / 2, data.getY() + TILE_SIZE / 2))
                 .build();
@@ -109,6 +118,20 @@ public class BombermanFactory implements EntityFactory{
                 .build();
     }
 
+    @Spawns("oneal")
+    public Entity newOneal(SpawnData data) {
+        return entityBuilder(data)
+                .type(ONEAL)
+                .atAnchored(new Point2D(20, 20), new Point2D(20, 20))
+                .at(new Point2D(data.getX(), data.getY()))
+                .bbox(new HitBox(new Point2D(5, 5), BoundingShape.circle(18)))
+                .with(new CollidableComponent(true))
+                .with(new CellMoveComponent(TILE_SIZE, TILE_SIZE, ENEMY_SPEED))
+                .with(new AStarMoveComponent(FXGL.<BombermanApp>getAppCast().getGrid()))
+                .with(new OnealComponent())
+                .build();
+    }
+
     @Spawns("flame")
     public Entity newFlame(SpawnData data) {
 
@@ -123,7 +146,7 @@ public class BombermanFactory implements EntityFactory{
     @Spawns("playerDied")
     public Entity newPlayerDied(SpawnData data) {
         return entityBuilder(data)
-                .view(texture("playerDied.png").toAnimatedTexture(7, Duration.seconds(0.3)).play())
+                .view(texture("playerDied.png").toAnimatedTexture(7, Duration.seconds(1)).play())
                 .build();
 
     }
@@ -131,7 +154,14 @@ public class BombermanFactory implements EntityFactory{
     @Spawns("enemyDied")
     public Entity newEnemyDied(SpawnData data) {
         return entityBuilder(data)
-                .view(texture("enemyDied.png").toAnimatedTexture(5, Duration.seconds(0.3)).play())
+                .view(texture("enemyDied.png").toAnimatedTexture(5, Duration.seconds(1)).play())
+                .build();
+    }
+
+    @Spawns("onealDied")
+    public Entity newOnealDied(SpawnData data) {
+        return entityBuilder(data)
+                .view(texture("onealDied.png").toAnimatedTexture(4, Duration.seconds(1)).play())
                 .build();
     }
 
