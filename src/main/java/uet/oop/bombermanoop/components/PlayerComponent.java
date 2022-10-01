@@ -22,13 +22,13 @@ public class PlayerComponent extends Component {
     public final static int FRAME_SIZE = 38;
 
     public AStarMoveComponent astar;
-    public CellMoveComponent cell;
+    public static CellMoveComponent cell;
     private AnimatedTexture texture;
     private AnimationChannel animIdle, animWalkX, animWalkUp, animWalkDown, animDied;
 
     private int bombsPlaced = 0;
-    private int bombsMaximum = 1;
-    private int explosionRadius = 40;
+    private static int bombsMaximum = 1;
+    private static int explosionRadius = 40;
 
     public PlayerComponent() {
         Image imageX = image("playerX.png");
@@ -56,6 +56,7 @@ public class PlayerComponent extends Component {
 
     @Override
     public void onUpdate(double tpf) {
+        //System.out.println(cell.getSpeed());
         if (!astar.isMoving()) {
             if (texture.getAnimationChannel() != animIdle)
                 texture.loopAnimationChannel(animIdle);
@@ -120,6 +121,19 @@ public class PlayerComponent extends Component {
 
     public void decreaseBombsPlaced() {
         this.bombsPlaced--;
+    }
+
+    public static void increaseBombsMaximum() {
+        bombsMaximum++;
+    }
+
+    public static void increaseExplosionRadius() {
+        explosionRadius += 40;
+    }
+
+    public static void increasePlayerSpeed() {
+        double tmp = cell.getSpeed();
+        cell.setSpeed(tmp + 100);
     }
 
 }

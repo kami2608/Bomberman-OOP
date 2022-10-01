@@ -8,6 +8,9 @@ import javafx.geometry.Point2D;
 import javafx.util.Duration;
 import uet.oop.bombermanoop.BombermanApp;
 
+import java.util.Date;
+import java.util.Random;
+
 import static com.almasb.fxgl.dsl.FXGL.*;
 import static uet.oop.bombermanoop.BombermanApp.*;
 import static uet.oop.bombermanoop.BombermanType.*;
@@ -15,8 +18,14 @@ import static uet.oop.bombermanoop.BombermanType.*;
 public class BombComponent extends Component {
     private int radius;
     private boolean hasWall;
+    private Random random = new Random();
+    public static boolean has_bombItem = false;
+    public static boolean has_speedItem = false;
+    public static boolean has_flameItem = false;
+    public static boolean enter_door = false;
 
     public BombComponent(int radius) {
+        //random.setSeed(1234567890);
         this.radius = radius;
     }
 
@@ -42,19 +51,32 @@ public class BombComponent extends Component {
         getGameWorld().getEntitiesAt(new Point2D(x, y))
                 .stream()
                 .forEach(e -> {
-                    if (!e.isType(WALL)) {
+                    if (!e.isType(WALL) && !e.isType(BOMBITEM) && !e.isType(FLAMEITEM) && !e.isType(SPEEDITEM) && !e.isType(DOOR)) {
                         FXGL.<BombermanApp>getAppCast().onEntityDestroyed(e);
                         e.removeFromWorld();
-                        if(e.isType(BRICK)) {
-                            Entity brickExpode = spawn("brick", e.getX(), e.getY());
-                            getGameTimer().runOnceAfter(() -> {
-                                brickExpode.removeFromWorld();
-                            }, Duration.seconds(0.5));
+                        if(e.isType(PLAYER)) {
+                            hitTaken(e);
+                        }
+                        if (e.isType(BRICK)) {
+                            count_brick++;
+                            if (count_brick == 5) {
+                                spawn("bombItem", e.getX(), e.getY());
+                            } else if (count_brick == 10) {
+                                spawn("flameItem", e.getX(), e.getY());
+                            } else if (count_brick == 15) {
+                                spawn("speedItem", e.getX(), e.getY());
+                            } else if (count_brick == 20) {
+                                spawn("portal", e.getX(), e.getY());
+                            } else {
+                                Entity brickExplode = spawn("brick", e.getX(), e.getY());
+                                getGameTimer().runOnceAfter(() -> {
+                                    brickExplode.removeFromWorld();
+                                }, Duration.seconds(0.5));
+                            }
                         }
 
                         return;
-                    }
-                    else {
+                    } else {
                         this.hasWall = true;
                         return;
                     }
@@ -64,7 +86,7 @@ public class BombComponent extends Component {
 //                    }
 
                 });
-        if(!this.hasWall) {
+        if (!this.hasWall) {
             Entity flame = spawn("flame", x, y);
             getGameTimer().runOnceAfter(() -> {
                 flame.removeFromWorld();

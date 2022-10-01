@@ -26,7 +26,7 @@ import uet.oop.bombermanoop.components.OnealComponent;
 import uet.oop.bombermanoop.components.PlayerComponent;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
-import static uet.oop.bombermanoop.BombermanApp.TILE_SIZE;
+import static uet.oop.bombermanoop.BombermanApp.*;
 import static uet.oop.bombermanoop.BombermanType.*;
 
 public class BombermanFactory implements EntityFactory{
@@ -38,7 +38,7 @@ public class BombermanFactory implements EntityFactory{
     public Entity newBackground(SpawnData data) {
         return entityBuilder()
                 .at(0, 0)
-                .viewWithBBox(new Rectangle(600, 600, Color.FORESTGREEN))
+                .viewWithBBox(new Rectangle(WIDTH, HEIGHT, Color.FORESTGREEN))
                 .zIndex(-1)
                 .build();
     }
@@ -56,6 +56,7 @@ public class BombermanFactory implements EntityFactory{
         return entityBuilder(data)
                 .type(BRICK)
                 .viewWithBBox(texture("brick.png", TILE_SIZE, TILE_SIZE))
+                .with(new CollidableComponent(true))
                 .build();
     }
 
@@ -66,6 +67,41 @@ public class BombermanFactory implements EntityFactory{
                 .build();
     }
 
+    @Spawns("portal")
+    public Entity newPortal(SpawnData data) {
+        return entityBuilder(data)
+                .type(DOOR)
+                .viewWithBBox(texture("door.png", TILE_SIZE, TILE_SIZE))
+                .with(new CollidableComponent(true))
+                .build();
+    }
+
+    @Spawns("speedItem")
+    public Entity newSpeedItem(SpawnData data) {
+        return entityBuilder(data)
+                .type(SPEEDITEM)
+                .viewWithBBox(texture("speedItem.png", TILE_SIZE, TILE_SIZE))
+                .with(new CollidableComponent(true))
+                .build();
+    }
+
+    @Spawns("flameItem")
+    public Entity newFlameItem(SpawnData data) {
+        return entityBuilder(data)
+                .type(FLAMEITEM)
+                .viewWithBBox(texture("flameItem.png", TILE_SIZE, TILE_SIZE))
+                .with(new CollidableComponent(true))
+                .build();
+    }
+
+    @Spawns("bombItem")
+    public Entity newBombItem(SpawnData data) {
+        return entityBuilder(data)
+                .type(BOMBITEM)
+                .viewWithBBox(texture("bombItem.png", TILE_SIZE, TILE_SIZE))
+                .with(new CollidableComponent(true))
+                .build();
+    }
 
     @Spawns("1")
     public Entity newBlock(SpawnData data) {
@@ -83,7 +119,7 @@ public class BombermanFactory implements EntityFactory{
         return entityBuilder(data)
                 .type(PLAYER)
                 .atAnchored(new Point2D(20, 20), new Point2D(20, 20))
-                .at(new Point2D(40, 40))
+                .at(new Point2D(40, 80))
                 .bbox(new HitBox(new Point2D(2, 2), BoundingShape.circle(18)))
                 .with(new CollidableComponent(true))
                 .with(new CellMoveComponent(TILE_SIZE, TILE_SIZE, PLAYER_SPEED))
