@@ -1,18 +1,19 @@
-111111111111111
-w0000w0bbb0000w
-w00b0b0w00bwb0w
-w0000wbww00b00w
-wbwbb00b00w0b0w
-w00www0bbb0000w
-w00bbbwwbbb000w
-w0000000000000w
-w00wwbbbb00000w
-wbb0bbbbww0000w
-w00wb00bbb0w00w
-w00wbb0bb00w00w
-w00bww0bbb0000w
-w00www0bbb0000w
-wwwwwwwwwwwwwww
+111111111111111111111111111111
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+w0000bb0000b0000bb000000bb00bw
+w0wbw0w0w0w0w0wbw0w0w0wbw0w00w
+w00bbb0000000wb0000b00bb0000bw
+w0w0wbw0w0w0wbw0w0wbw0w0w0wb0w
+w00bb00000ww00000bb00000000bbw
+w0w0w0wbw0wbw0w0w0w0w0wbw0w00w
+w00bbb0000000000bbwb000000bbbw
+wbw0w0w0w0wbw0w0w0w0w0w0wbw0bw
+w000bb0000000wbb00000000bb000w
+wbw0w0w0wbw0w0w0w0wbw0wbw0wb0w
+w00wbb00000bbbb00000000b0000bw
+w0w0w0wbw0w0w0wbw0w0w0w0wbw00w
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+
 
 
 
