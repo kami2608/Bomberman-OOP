@@ -38,7 +38,7 @@ public class BombermanFactory implements EntityFactory{
     public Entity newBackground(SpawnData data) {
         return entityBuilder()
                 .at(0, 0)
-                .viewWithBBox(new Rectangle(WIDTH, HEIGHT, Color.FORESTGREEN))
+                .viewWithBBox(new Rectangle(MAX_WIDTH, HEIGHT, Color.FORESTGREEN))
                 .zIndex(-1)
                 .build();
     }
@@ -48,6 +48,7 @@ public class BombermanFactory implements EntityFactory{
         return entityBuilder(data)
                 .type(WALL)
                 .viewWithBBox(texture("wall.png", TILE_SIZE, TILE_SIZE))
+                .with(new CollidableComponent(true))
                 .build();
     }
 

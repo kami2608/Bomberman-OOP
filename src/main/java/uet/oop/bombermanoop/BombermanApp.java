@@ -5,6 +5,7 @@ import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.SceneFactory;
 import com.almasb.fxgl.app.scene.SimpleGameMenu;
+import com.almasb.fxgl.app.scene.Viewport;
 import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
@@ -40,6 +41,7 @@ public class BombermanApp extends GameApplication {
 
     public static final int HEIGHT = 600;
     public static final int WIDTH = 1200;
+    public static final int MAX_WIDTH = 46 * 40;
     public static int count_brick = 0;
 
     private static Entity player;
@@ -109,7 +111,10 @@ public class BombermanApp extends GameApplication {
     protected void initGame() {
         getGameWorld().addEntityFactory(new BombermanFactory());
         init();
-
+        Viewport viewport = getGameScene().getViewport();
+        viewport.setBounds(0, 0, MAX_WIDTH, HEIGHT);
+        viewport.bindToEntity(player, getAppWidth() / 2, getAppHeight() / 2);
+        viewport.setLazy(true);
     }
 
     public static void init() {
@@ -129,10 +134,11 @@ public class BombermanApp extends GameApplication {
         player = FXGL.spawn("player");
         playerComponent = player.getComponent(PlayerComponent.class);
 
-        spawn("enemy", new SpawnData(160, 80));
-        spawn("enemy", new SpawnData(480, 80));
-        spawn("oneal", new SpawnData(520, 520));
-        spawn("oneal", new SpawnData(280, 280));
+//        spawn("enemy", new SpawnData(160, 80));
+//        spawn("enemy", new SpawnData(480, 80));
+//        spawn("oneal", new SpawnData(520, 520));
+//        spawn("oneal", new SpawnData(280, 280));
+
     }
 
     @Override
@@ -246,7 +252,7 @@ public class BombermanApp extends GameApplication {
 
         getGameTimer().runOnceAfter(() -> {
             init();
-        }, Duration.seconds(3));
+        }, Duration.seconds(2));
 
     }
 
