@@ -127,11 +127,11 @@ public class PlayerComponent extends Component {
         explosionRadius += 40;
     }
 
-    public static void setup() {
-        bombsMaximum = 1;
-        explosionRadius = 40;
-        BombermanApp.count_brick = 0;
-    }
+//    public static void setup() {
+//        bombsMaximum = 1;
+//        explosionRadius = 40;
+//        BombermanApp.count_brick = 0;
+//    }
 
     public void increasePlayerSpeed() {
         double tmp = cell.getSpeed();

@@ -19,6 +19,8 @@ import com.almasb.fxgl.pathfinding.astar.AStarCell;
 import com.almasb.fxgl.pathfinding.astar.AStarGrid;
 import com.almasb.fxgl.physics.CollisionHandler;
 import javafx.scene.input.KeyCode;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import uet.oop.bombermanoop.components.EnemyComponent;
 import uet.oop.bombermanoop.components.PlayerComponent;
@@ -39,6 +41,7 @@ public class BombermanApp extends GameApplication {
     public static final int TILE_SIZE = 40;
     public static boolean is_died = false;
     public static int count_brick = 0;
+    public static int MAX_LEVEL = 3;
 
     public static final int HEIGHT = 600;
     public static final int WIDTH = 1200;
@@ -70,10 +73,49 @@ public class BombermanApp extends GameApplication {
 
     @Override
     protected void initGameVars(Map<String, Object> vars) {
+        vars.put("score", 0);
+        vars.put("time", 200.0);
+        vars.put("level", 0);
+        vars.put("life", 3);
     }
 
     @Override
     protected void initUI() {
+
+        Text levelText = getUIFactoryService().newText("", Color.WHITE, 30);
+        levelText.setTranslateX(20);
+        levelText.setTranslateY(30);
+        levelText.textProperty().bind(getip("level").asString("Level: %d"));
+        addUINode(levelText);
+
+        Text lifeText = getUIFactoryService().newText("", Color.WHITE, 30);
+        lifeText.setTranslateX(300);
+        lifeText.setTranslateY(30);
+        lifeText.textProperty().bind(getip("life").asString("♥ [%d]"));
+        addUINode(lifeText);
+
+        Text timerText = getUIFactoryService().newText("", Color.WHITE, 30);
+        timerText.setTranslateX(600);
+        timerText.setTranslateY(30);
+        timerText.textProperty().bind(getdp("time").asString("Time: %.0f"));
+        addUINode(timerText);
+
+        Text scoreText = getUIFactoryService().newText("", Color.WHITE, 30);
+        scoreText.setTranslateX(900);
+        scoreText.setTranslateY(30);
+        scoreText.textProperty().bind(getip("score").asString("Score: %d"));
+        addUINode(scoreText);
+
+    }
+
+    @Override
+    protected void onUpdate(double tpf) {
+        if (is_died) return;
+        inc("time", -tpf);
+        if (getd("time") <= 0.0) {
+            showMessage("Time Up !!!");
+            hitTaken(player);
+        }
     }
 
     @Override
@@ -122,12 +164,12 @@ public class BombermanApp extends GameApplication {
     @Override
     protected void initGame() {
         getGameWorld().addEntityFactory(new BombermanFactory());
-        init();
+        nextLevel();
     }
 
     public void init() {
         is_died = false;
-        Level level = getAssetLoader().loadLevel("0.txt", new TextLevelLoader(40, 40, '0'));
+        Level level = getAssetLoader().loadLevel(geti("level") + ".txt", new TextLevelLoader(40, 40, '0'));
         getGameWorld().setLevel(level);
         spawn("BG");
 
@@ -146,28 +188,28 @@ public class BombermanApp extends GameApplication {
         spawn("oneal", new SpawnData(480, 480));
         spawn("oneal", new SpawnData(280, 280));
 
-        setup();
-
         Viewport viewport = getGameScene().getViewport();
         viewport.setBounds(0, 0, MAX_WIDTH, HEIGHT);
         viewport.bindToEntity(player, getAppWidth() / 2, getAppHeight() / 2);
         viewport.setLazy(true);
 
+        set("time", 200.0);
+        set("score", 0);
+
+    }
+
+    private void nextLevel() {
+        if (geti("level") == MAX_LEVEL) {
+            showMessage("CONGRATULATIONS !!! \n\n\n\n GOODBYE");
+            return;
+        }
+        count_brick = 0;
+        inc("level", +1);
+        init();
     }
 
     @Override
     protected void initPhysics() {
-
-//        onCollision(FLAME, BRICK, (flame, brick) -> {
-//            if (Math.abs(brick.getPosition().getX() - flame.getPosition().getX()) < 20 &&
-//                    Math.abs(brick.getPosition().getY() - flame.getPosition().getY()) < 20) {
-//                brick.removeFromWorld();
-//                Entity brickExplode = spawn("brick", brick.getX(), brick.getY());
-//                getGameTimer().runOnceAfter(() -> {
-//                    brickExplode.removeFromWorld();
-//                }, Duration.seconds(0.5));
-//            }
-//        });
 
         onCollision(PLAYER, ENEMY, (player, enemy) -> {
             if (Math.abs(player.getPosition().getX() - enemy.getPosition().getX()) < 20 &&
@@ -221,17 +263,13 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, DOOR, (player, door) -> {
             if (Math.abs(door.getPosition().getX() - player.getPosition().getX()) < 20 &&
                     Math.abs(door.getPosition().getY() - player.getPosition().getY()) < 20 &&
-                    getGameWorld().getGroup(ENEMY, ONEAL).getSize() == 0) {
+                    !is_died && getGameWorld().getGroup(ENEMY, ONEAL).getSize() == 0) {
+                door.removeFromWorld();
+                //spawn("portal", door.getX(), door.getY());
                 getGameTimer().runOnceAfter(() -> {
-                    FXGL.getGameScene().getViewport().fade(() -> {
-                        is_died = true;
-                        door.removeFromWorld();
-                        player.removeFromWorld();
-                        getGameWorld().getEntitiesCopy().forEach(Entity::removeFromWorld);
-                        //FXGL.getGameController().startNewGame();
-                        init();
-                    });
-                }, Duration.seconds(2));
+                    getGameWorld().getEntitiesCopy().forEach(Entity::removeFromWorld);
+                    nextLevel();
+                }, Duration.seconds(1));
             }
         });
 
@@ -240,6 +278,7 @@ public class BombermanApp extends GameApplication {
                     Math.abs(flame.getPosition().getY() - enemy.getPosition().getY()) < 20) {
                 System.out.println("enemy die ne");
                 enemy.removeFromWorld();
+                inc("score", +100);
 
                 Entity enemyDied = spawn("enemyDied", enemy.getX(), enemy.getY());
                 getGameTimer().runOnceAfter(() -> {
@@ -252,6 +291,7 @@ public class BombermanApp extends GameApplication {
             if (Math.abs(flame.getPosition().getX() - oneal.getPosition().getX()) < 20 &&
                     Math.abs(flame.getPosition().getY() - oneal.getPosition().getY()) < 20) {
                 oneal.removeFromWorld();
+                inc("score", +200);
 
                 Entity onealDied = spawn("onealDied", oneal.getX(), oneal.getY());
                 getGameTimer().runOnceAfter(() -> {
@@ -273,10 +313,20 @@ public class BombermanApp extends GameApplication {
             FXGL.getGameScene().getViewport().fade(() -> {
                 getGameWorld().getEntitiesCopy().forEach(Entity::removeFromWorld);
                 //FXGL.getGameController().startNewGame();
-                init();
+                inc("life", -1);
+                if (geti("life") > 0) {
+                    //setup();
+                    init();
+                } else {
+                    showMessage("YOU DIED !!!");
+                }
             });
         }, Duration.seconds(2));
 
+    }
+
+    public static void incScore(int score) {
+        inc("score", +score);
     }
 
     public void onEntityDestroyed(Entity e) {
