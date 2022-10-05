@@ -13,6 +13,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.control.Cell;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
+import uet.oop.bombermanoop.BombermanApp;
 
 import java.util.concurrent.Phaser;
 
@@ -22,7 +23,7 @@ public class PlayerComponent extends Component {
     public final static int FRAME_SIZE = 38;
 
     public AStarMoveComponent astar;
-    public static CellMoveComponent cell;
+    public CellMoveComponent cell;
     private AnimatedTexture texture;
     private AnimationChannel animIdle, animWalkX, animWalkUp, animWalkDown, animDied;
 
@@ -105,11 +106,6 @@ public class PlayerComponent extends Component {
         }, Duration.seconds(2));
     }
 
-    public void playerDied() {
-        if (texture.getAnimationChannel() != animDied)
-            texture("playerDied.png").toAnimatedTexture(7, Duration.seconds(1)).play();
-    }
-
     public void explodeBombCollide(Entity bomb) {
         bomb.getComponent(BombComponent.class).explode(bomb.getX(), bomb.getY(), bomb);
         decreaseBombsPlaced();
@@ -131,7 +127,13 @@ public class PlayerComponent extends Component {
         explosionRadius += 40;
     }
 
-    public static void increasePlayerSpeed() {
+    public static void setup() {
+        bombsMaximum = 1;
+        explosionRadius = 40;
+        BombermanApp.count_brick = 0;
+    }
+
+    public void increasePlayerSpeed() {
         double tmp = cell.getSpeed();
         cell.setSpeed(tmp + 100);
     }

@@ -22,6 +22,7 @@ import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
 import uet.oop.bombermanoop.components.EnemyComponent;
 import uet.oop.bombermanoop.components.PlayerComponent;
+import uet.oop.bombermanoop.menu.BombermanMainMenu;
 
 import java.io.Serializable;
 import java.util.List;
@@ -36,13 +37,12 @@ import static uet.oop.bombermanoop.components.PlayerComponent.*;
 public class BombermanApp extends GameApplication {
 
     public static final int TILE_SIZE = 40;
-    public static int count_enemy = 4;
     public static boolean is_died = false;
+    public static int count_brick = 0;
 
     public static final int HEIGHT = 600;
     public static final int WIDTH = 1200;
     public static final int MAX_WIDTH = 46 * 40;
-    public static int count_brick = 0;
 
     private static Entity player;
     private static AStarGrid grid;
@@ -58,6 +58,13 @@ public class BombermanApp extends GameApplication {
         settings.setHeight(HEIGHT);
         settings.setWidth(WIDTH);
         settings.setVersion("0.1");
+        settings.setMainMenuEnabled(true);
+        settings.setSceneFactory(new SceneFactory() {
+            @Override
+            public FXGLMenu newMainMenu() {
+                return new BombermanMainMenu();
+            }
+        });
 
     }
 
@@ -74,35 +81,40 @@ public class BombermanApp extends GameApplication {
         getInput().addAction(new UserAction("Move Right") {
             @Override
             protected void onAction() {
-                playerComponent.right();
+                if (!is_died)
+                    playerComponent.right();
             }
         }, KeyCode.D);
 
         getInput().addAction(new UserAction("Move Left") {
             @Override
             protected void onAction() {
-                playerComponent.left();
+                if (!is_died)
+                    playerComponent.left();
             }
         }, KeyCode.A);
 
         getInput().addAction(new UserAction("Move Up") {
             @Override
             protected void onAction() {
-                playerComponent.up();
+                if (!is_died)
+                    playerComponent.up();
             }
         }, KeyCode.W);
 
         getInput().addAction(new UserAction("Move Down") {
             @Override
             protected void onAction() {
-                playerComponent.down();
+                if (!is_died)
+                    playerComponent.down();
             }
         }, KeyCode.S);
 
         getInput().addAction(new UserAction("Place Bomb") {
             @Override
             protected void onActionBegin() {
-                playerComponent.placeBomb();
+                if (!is_died)
+                    playerComponent.placeBomb();
             }
         }, KeyCode.SPACE);
     }
@@ -111,17 +123,12 @@ public class BombermanApp extends GameApplication {
     protected void initGame() {
         getGameWorld().addEntityFactory(new BombermanFactory());
         init();
-        Viewport viewport = getGameScene().getViewport();
-        viewport.setBounds(0, 0, MAX_WIDTH, HEIGHT);
-        viewport.bindToEntity(player, getAppWidth() / 2, getAppHeight() / 2);
-        viewport.setLazy(true);
     }
 
-    public static void init() {
+    public void init() {
         is_died = false;
         Level level = getAssetLoader().loadLevel("0.txt", new TextLevelLoader(40, 40, '0'));
         getGameWorld().setLevel(level);
-        //spawn("bomb", new SpawnData(120, 40));
         spawn("BG");
 
         grid = AStarGrid.fromWorld(FXGL.getGameWorld(), WIDTH, HEIGHT, TILE_SIZE, TILE_SIZE, type -> {
@@ -134,10 +141,17 @@ public class BombermanApp extends GameApplication {
         player = FXGL.spawn("player");
         playerComponent = player.getComponent(PlayerComponent.class);
 
-//        spawn("enemy", new SpawnData(160, 80));
-//        spawn("enemy", new SpawnData(480, 80));
-//        spawn("oneal", new SpawnData(520, 520));
-//        spawn("oneal", new SpawnData(280, 280));
+        spawn("enemy", new SpawnData(160, 80));
+        spawn("enemy", new SpawnData(480, 80));
+        spawn("oneal", new SpawnData(480, 480));
+        spawn("oneal", new SpawnData(280, 280));
+
+        setup();
+
+        Viewport viewport = getGameScene().getViewport();
+        viewport.setBounds(0, 0, MAX_WIDTH, HEIGHT);
+        viewport.bindToEntity(player, getAppWidth() / 2, getAppHeight() / 2);
+        viewport.setLazy(true);
 
     }
 
@@ -182,6 +196,7 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, BOMBITEM, (player, bombItem) -> {
             if (Math.abs(bombItem.getPosition().getX() - player.getPosition().getX()) < 20 &&
                     Math.abs(bombItem.getPosition().getY() - player.getPosition().getY()) < 20) {
+                System.out.println("hi");
                 bombItem.removeFromWorld();
                 increaseBombsMaximum();
             }
@@ -199,7 +214,7 @@ public class BombermanApp extends GameApplication {
             if (Math.abs(speedItem.getPosition().getX() - player.getPosition().getX()) < 20 &&
                     Math.abs(speedItem.getPosition().getY() - player.getPosition().getY()) < 20) {
                 speedItem.removeFromWorld();
-                increasePlayerSpeed();
+                playerComponent.increasePlayerSpeed();
             }
         });
 
@@ -207,12 +222,16 @@ public class BombermanApp extends GameApplication {
             if (Math.abs(door.getPosition().getX() - player.getPosition().getX()) < 20 &&
                     Math.abs(door.getPosition().getY() - player.getPosition().getY()) < 20 &&
                     getGameWorld().getGroup(ENEMY, ONEAL).getSize() == 0) {
-                door.removeFromWorld();
                 getGameTimer().runOnceAfter(() -> {
-                    is_died = true;
-                    player.removeFromWorld();
-                    init();
-                }, Duration.seconds(3));
+                    FXGL.getGameScene().getViewport().fade(() -> {
+                        is_died = true;
+                        door.removeFromWorld();
+                        player.removeFromWorld();
+                        getGameWorld().getEntitiesCopy().forEach(Entity::removeFromWorld);
+                        //FXGL.getGameController().startNewGame();
+                        init();
+                    });
+                }, Duration.seconds(2));
             }
         });
 
@@ -242,7 +261,7 @@ public class BombermanApp extends GameApplication {
         });
     }
 
-    public static void hitTaken(Entity player) {
+    public void hitTaken(Entity player) {
         is_died = true;
         player.removeFromWorld();
         Entity playerDied = spawn("playerDied", player.getX(), player.getY());
@@ -251,7 +270,11 @@ public class BombermanApp extends GameApplication {
         }, Duration.seconds(0.5));
 
         getGameTimer().runOnceAfter(() -> {
-            init();
+            FXGL.getGameScene().getViewport().fade(() -> {
+                getGameWorld().getEntitiesCopy().forEach(Entity::removeFromWorld);
+                //FXGL.getGameController().startNewGame();
+                init();
+            });
         }, Duration.seconds(2));
 
     }

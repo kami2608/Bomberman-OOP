@@ -7,6 +7,7 @@ import com.almasb.fxgl.pathfinding.CellState;
 import javafx.geometry.Point2D;
 import javafx.util.Duration;
 import uet.oop.bombermanoop.BombermanApp;
+import uet.oop.bombermanoop.BombermanType;
 
 import java.util.Date;
 import java.util.Random;
@@ -19,10 +20,6 @@ public class BombComponent extends Component {
     private int radius;
     private boolean hasWall;
     private Random random = new Random();
-    public static boolean has_bombItem = false;
-    public static boolean has_speedItem = false;
-    public static boolean has_flameItem = false;
-    public static boolean enter_door = false;
 
     public BombComponent(int radius) {
         //random.setSeed(1234567890);
@@ -51,11 +48,27 @@ public class BombComponent extends Component {
         getGameWorld().getEntitiesAt(new Point2D(x, y))
                 .stream()
                 .forEach(e -> {
+//                    if (e.isType(WALL)) {
+//                        this.hasWall = true;
+//                        return;
+//                    }
+//                    if (e.isType(BRICK)) {
+//                        FXGL.<BombermanApp>getAppCast().onEntityDestroyed(e);
+//                        e.removeFromWorld();
+//                        Entity brickExplode = spawn("brick", e.getX(), e.getY());
+//                        getGameTimer().runOnceAfter(() -> {
+//                            brickExplode.removeFromWorld();
+//                        }, Duration.seconds(0.5));
+//
+//                        return;
+//                    }
+
                     if (!e.isType(WALL) && !e.isType(BOMBITEM) && !e.isType(FLAMEITEM) && !e.isType(SPEEDITEM) && !e.isType(DOOR)) {
                         FXGL.<BombermanApp>getAppCast().onEntityDestroyed(e);
-                        e.removeFromWorld();
+                        if(!e.isType(BOMB))
+                            e.removeFromWorld();
                         if(e.isType(PLAYER)) {
-                            hitTaken(e);
+                            FXGL.<BombermanApp>getAppCast().hitTaken(e);
                         }
                         if (e.isType(BRICK)) {
                             count_brick++;
@@ -80,10 +93,10 @@ public class BombComponent extends Component {
                         this.hasWall = true;
                         return;
                     }
-//                    if(e.isType(WALL)) {
-//                        this.hasWall = true;
-//                        return;
-//                    }
+////                    if(e.isType(WALL)) {
+////                        this.hasWall = true;
+////                        return;
+////                    }
 
                 });
         if (!this.hasWall) {
@@ -97,7 +110,7 @@ public class BombComponent extends Component {
     private void removeEntityYDown(double x, double y) {
         this.hasWall = false;
         for (double i = y; i <= y + this.radius; i = i + 40) {
-            if (i > (WIDTH - 80) || hasWall) {
+            if (i > (MAX_WIDTH - 80) || hasWall) {
                 break;
             }
 
@@ -119,7 +132,7 @@ public class BombComponent extends Component {
     private void removeEntityXLeft(double x, double y) {
         this.hasWall = false;
         for (double i = x; i <= x + this.radius; i = i + 40) {
-            if (i > (WIDTH - 80) || hasWall) {
+            if (i > (MAX_WIDTH - 80) || hasWall) {
                 break;
             }
 

@@ -3,6 +3,7 @@ package uet.oop.bombermanoop.components;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
+import com.almasb.fxgl.entity.component.Required;
 import com.almasb.fxgl.pathfinding.CellMoveComponent;
 import com.almasb.fxgl.pathfinding.astar.AStarMoveComponent;
 import com.almasb.fxgl.texture.AnimatedTexture;
@@ -19,7 +20,8 @@ import static uet.oop.bombermanoop.BombermanApp.TILE_SIZE;
 import static uet.oop.bombermanoop.BombermanApp.is_died;
 import static uet.oop.bombermanoop.components.PlayerComponent.FRAME_SIZE;
 
-public class OnealComponent extends EnemyComponent {
+@Required(AStarMoveComponent.class)
+public class OnealComponent extends Component {
 
     public AStarMoveComponent astar;
     public CellMoveComponent cell;
@@ -50,16 +52,21 @@ public class OnealComponent extends EnemyComponent {
     public void onUpdate(double tpf) {
         if(!is_died) {
             var player = FXGL.getGameWorld().getSingleton(BombermanType.PLAYER);
-//        int x = player.call("getCellX");
-//        int y = player.call("getCellY");
-            int x = (int) player.getX() / TILE_SIZE;
-            int y = (int) player.getY() / TILE_SIZE;
+            int x = player.call("getCellX");
+            int y = player.call("getCellY");
+//            int x = (int) player.getX() / TILE_SIZE;
+//            int y = (int) player.getY() / TILE_SIZE;
 
             if (getEntity().distance(player) < TILE_SIZE * 5) {
                 cell.setSpeed(100);
                 astar.moveToCell(x, y);
             } else {
-                super.onUpdate(tpf);
+                double rand = Math.random();
+
+                if (rand > 0.8) left();
+                else if (rand > 0.6) right();
+                else if (rand > 0.4) up();
+                else down();
                 int speed = 50;
                 if (random.nextBoolean())
                     speed = 10 + random.nextInt(80);
@@ -69,6 +76,32 @@ public class OnealComponent extends EnemyComponent {
             if (texture.getAnimationChannel() != animWalk)
                 texture.loopAnimationChannel(animWalk);
         }
+    }
+
+    public void left() {
+        getEntity().setScaleX(1);
+        astar.moveToLeftCell();
+        if(texture.getAnimationChannel() != animWalk)
+            texture.loopAnimationChannel(animWalk);
+    }
+
+    public void right() {
+        getEntity().setScaleX(-1);
+        astar.moveToRightCell();
+        if(texture.getAnimationChannel() != animWalk)
+            texture.loopAnimationChannel(animWalk);
+    }
+
+    public void down() {
+        astar.moveToDownCell();
+        if(texture.getAnimationChannel() != animWalk)
+            texture.loopAnimationChannel(animWalk);
+    }
+
+    public void up() {
+        astar.moveToUpCell();
+        if(texture.getAnimationChannel() != animWalk)
+            texture.loopAnimationChannel(animWalk);
     }
 
 }
