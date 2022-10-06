@@ -318,10 +318,12 @@ public class BombermanApp extends GameApplication {
                     //setup();
                     init();
                 } else {
-                    showMessage("YOU DIED !!!");
+                    showMessage("YOU DIED !!!", () -> {
+                        FXGL.getGameController().gotoGameMenu();
+                    });
                 }
             });
-        }, Duration.seconds(2));
+        }, Duration.seconds(1));
 
     }
 

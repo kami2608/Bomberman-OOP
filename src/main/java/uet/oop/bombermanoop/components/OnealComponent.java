@@ -21,7 +21,7 @@ import static uet.oop.bombermanoop.BombermanApp.is_died;
 import static uet.oop.bombermanoop.components.PlayerComponent.FRAME_SIZE;
 
 @Required(AStarMoveComponent.class)
-public class OnealComponent extends Component {
+public class OnealComponent extends EnemyComponent {
 
     public AStarMoveComponent astar;
     public CellMoveComponent cell;
@@ -76,32 +76,6 @@ public class OnealComponent extends Component {
             if (texture.getAnimationChannel() != animWalk)
                 texture.loopAnimationChannel(animWalk);
         }
-    }
-
-    public void left() {
-        getEntity().setScaleX(1);
-        astar.moveToLeftCell();
-        if(texture.getAnimationChannel() != animWalk)
-            texture.loopAnimationChannel(animWalk);
-    }
-
-    public void right() {
-        getEntity().setScaleX(-1);
-        astar.moveToRightCell();
-        if(texture.getAnimationChannel() != animWalk)
-            texture.loopAnimationChannel(animWalk);
-    }
-
-    public void down() {
-        astar.moveToDownCell();
-        if(texture.getAnimationChannel() != animWalk)
-            texture.loopAnimationChannel(animWalk);
-    }
-
-    public void up() {
-        astar.moveToUpCell();
-        if(texture.getAnimationChannel() != animWalk)
-            texture.loopAnimationChannel(animWalk);
     }
 
 }
