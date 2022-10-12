@@ -25,7 +25,7 @@ public class DahlComponent extends EnemyComponent{
         Image image = image("dahl.png");
 
         animIdle = new AnimationChannel(image, 6, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 0, 0);
-        animWalk = new AnimationChannel(image, 6, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 0, 2);
+        animWalk = new AnimationChannel(image, 6, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 0, 5);
 
         texture = new AnimatedTexture(animIdle);
 
@@ -50,7 +50,7 @@ public class DahlComponent extends EnemyComponent{
         if(cnt % 50 == 0) {
             int speed = 50;
             if (random.nextBoolean())
-                speed = 10 + random.nextInt(100);
+                speed = 20 + random.nextInt(150);
             cell.setSpeed(speed);
         }
 

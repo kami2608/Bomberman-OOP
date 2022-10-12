@@ -31,6 +31,8 @@ public class BombermanFactory implements EntityFactory{
     private static final int PLAYER_SPEED = 150;
     private static final int ENEMY_SPEED = 50;
 
+    private static final int PASS_SPEED = 150;
+
     @Spawns("BG")
     public Entity newBackground(SpawnData data) {
         return entityBuilder()
@@ -180,6 +182,21 @@ public class BombermanFactory implements EntityFactory{
                 .build();
     }
 
+    @Spawns("pass")
+    public Entity newPass(SpawnData data) {
+        return entityBuilder(data)
+                .type(PASS)
+                .atAnchored(new Point2D(20, 20), new Point2D(20, 20))
+                .at(new Point2D(data.getX(), data.getY()))
+                //.at(new Point2D(40, 40))
+                .bbox(new HitBox(new Point2D(5, 5), BoundingShape.circle(18)))
+                .with(new CollidableComponent(true))
+                .with(new CellMoveComponent(TILE_SIZE, TILE_SIZE, PASS_SPEED))
+                .with(new AStarMoveComponent(FXGL.<BombermanApp>getAppCast().getGrid()))
+                .with(new PassComponent())
+                .build();
+    }
+
     @Spawns("flame")
     public Entity newFlame(SpawnData data) {
 
@@ -216,7 +233,7 @@ public class BombermanFactory implements EntityFactory{
     @Spawns("dahlDied")
     public Entity newDahlDied(SpawnData data) {
         return entityBuilder(data)
-                .view(texture("dahlDied.png").toAnimatedTexture(4, Duration.seconds(1)).play())
+                .view(texture("dahlDied.png").toAnimatedTexture(5, Duration.seconds(1)).play())
                 .build();
     }
 

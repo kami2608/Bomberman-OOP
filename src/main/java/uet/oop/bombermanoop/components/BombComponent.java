@@ -73,15 +73,18 @@ public class BombComponent extends Component {
                         }
                         if(e.isType(ENEMY)) incScore(100);
                         else if(e.isType(DAHL)) incScore(150);
-                        else if(e.isType(ONEAL)) incScore(200);
+                        else if(e.isType(PASS)) incScore(200);
+                        else if(e.isType(ONEAL)) incScore(250);
                         if (e.isType(BRICK)) {
                             count_brick++;
+                            System.out.println(count_brick);
                             if (count_brick == 5) {
-                                spawn("bombItem", e.getX(), e.getY());
+                                spawn("portal", e.getX(), e.getY());
+
                             } else if (count_brick == 10) {
                                 spawn("flameItem", e.getX(), e.getY());
                             } else if (count_brick == 15) {
-                                spawn("portal", e.getX(), e.getY());
+                                spawn("bombItem", e.getX(), e.getY());
                             } else if (count_brick == 20) {
                                 spawn("speedItem", e.getX(), e.getY());
                             } else {

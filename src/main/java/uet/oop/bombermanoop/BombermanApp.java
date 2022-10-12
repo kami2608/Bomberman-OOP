@@ -187,7 +187,7 @@ public class BombermanApp extends GameApplication {
         playerComponent = player.getComponent(PlayerComponent.class);
 
         spawn("enemy", new SpawnData(160, 80));
-        spawn("enemy", new SpawnData(480, 80));
+        spawn("pass", new SpawnData(480, 80));
         spawn("oneal", new SpawnData(480, 480));
         spawn("oneal", new SpawnData(240, 280));
         spawn("dahl", new SpawnData(480, 300));
@@ -199,6 +199,7 @@ public class BombermanApp extends GameApplication {
 
         set("time", 200.0);
         set("score", 0);
+        count_brick = 0;
 
     }
 
@@ -218,6 +219,14 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, ENEMY, (player, enemy) -> {
             if (Math.abs(player.getPosition().getX() - enemy.getPosition().getX()) < 20 &&
                     Math.abs(player.getPosition().getY() - enemy.getPosition().getY()) < 20) {
+                System.out.println("player die ne");
+                hitTaken(player);
+            }
+        });
+
+        onCollision(PLAYER, PASS, (player, pass) -> {
+            if (Math.abs(player.getPosition().getX() - pass.getPosition().getX()) < 20 &&
+                    Math.abs(player.getPosition().getY() - pass.getPosition().getY()) < 20) {
                 System.out.println("player die ne");
                 hitTaken(player);
             }
@@ -303,11 +312,25 @@ public class BombermanApp extends GameApplication {
             }
         });
 
+        onCollision(PASS, FLAME, (enemy, flame) -> {
+            if (Math.abs(flame.getPosition().getX() - enemy.getPosition().getX()) < 20 &&
+                    Math.abs(flame.getPosition().getY() - enemy.getPosition().getY()) < 20) {
+                System.out.println("enemy die ne");
+                enemy.removeFromWorld();
+                inc("score", +200);
+
+                Entity enemyDied = spawn("enemyDied", enemy.getX(), enemy.getY());
+                getGameTimer().runOnceAfter(() -> {
+                    enemyDied.removeFromWorld();
+                }, Duration.seconds(0.5));
+            }
+        });
+
         onCollision(ONEAL, FLAME, (oneal, flame) -> {
             if (Math.abs(flame.getPosition().getX() - oneal.getPosition().getX()) < 20 &&
                     Math.abs(flame.getPosition().getY() - oneal.getPosition().getY()) < 20) {
                 oneal.removeFromWorld();
-                inc("score", +200);
+                inc("score", +250);
 
                 Entity onealDied = spawn("onealDied", oneal.getX(), oneal.getY());
                 getGameTimer().runOnceAfter(() -> {
@@ -320,7 +343,7 @@ public class BombermanApp extends GameApplication {
             if (Math.abs(flame.getPosition().getX() - dahl.getPosition().getX()) < 20 &&
                     Math.abs(flame.getPosition().getY() - dahl.getPosition().getY()) < 20) {
                 dahl.removeFromWorld();
-                inc("score", +200);
+                inc("score", +150);
 
                 Entity dahlDied = spawn("dahlDied", dahl.getX(), dahl.getY());
                 getGameTimer().runOnceAfter(() -> {
