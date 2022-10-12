@@ -49,10 +49,15 @@ public class BombermanApp extends GameApplication {
 
     private static Entity player;
     private static AStarGrid grid;
+    private static AStarGrid grid2;
     private static PlayerComponent playerComponent;
 
     public static AStarGrid getGrid() {
         return grid;
+    }
+
+    public static AStarGrid getGrid2() {
+        return grid2;
     }
 
     @Override
@@ -183,13 +188,20 @@ public class BombermanApp extends GameApplication {
             return CellState.WALKABLE;
         });
 
+        grid2 = AStarGrid.fromWorld(FXGL.getGameWorld(), WIDTH, HEIGHT, TILE_SIZE, TILE_SIZE, type -> {
+            if (type.equals(WALL) || type.equals(BOMB))
+                return CellState.NOT_WALKABLE;
+
+            return CellState.WALKABLE;
+        });
+
         player = FXGL.spawn("player");
         playerComponent = player.getComponent(PlayerComponent.class);
 
         spawn("enemy", new SpawnData(160, 80));
         spawn("pass", new SpawnData(480, 80));
         spawn("oneal", new SpawnData(480, 480));
-        spawn("oneal", new SpawnData(240, 280));
+        spawn("doria", new SpawnData(240, 280));
         spawn("dahl", new SpawnData(480, 300));
 
 //        Viewport viewport = getGameScene().getViewport();
@@ -251,6 +263,14 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, DAHL, (player, dahl) -> {
             if (Math.abs(player.getPosition().getX() - dahl.getPosition().getX()) < 20 &&
                     Math.abs(player.getPosition().getY() - dahl.getPosition().getY()) < 20) {
+                System.out.println("player die ne");
+                hitTaken(player);
+            }
+        });
+
+        onCollision(PLAYER, DORIA, (player, doria) -> {
+            if (Math.abs(player.getPosition().getX() - doria.getPosition().getX()) < 20 &&
+                    Math.abs(player.getPosition().getY() - doria.getPosition().getY()) < 20) {
                 System.out.println("player die ne");
                 hitTaken(player);
             }
@@ -327,9 +347,9 @@ public class BombermanApp extends GameApplication {
                 pass.removeFromWorld();
                 inc("score", +200);
 
-                Entity enemyDied = spawn("enemyDied", pass.getX(), pass.getY());
+                Entity passDied = spawn("enemyDied", pass.getX(), pass.getY());
                 getGameTimer().runOnceAfter(() -> {
-                    enemyDied.removeFromWorld();
+                    passDied.removeFromWorld();
                     spawn("enemy", new SpawnData(40, 80));
                     spawn("enemy", new SpawnData(80, 80));
                     System.out.println("2 enemy");
@@ -358,9 +378,9 @@ public class BombermanApp extends GameApplication {
                 minvo.removeFromWorld();
                 inc("score", +250);
 
-                Entity enemyDied = spawn("enemyDied", minvo.getX(), minvo.getY());
+                Entity minvoDied = spawn("enemyDied", minvo.getX(), minvo.getY());
                 getGameTimer().runOnceAfter(() -> {
-                    enemyDied.removeFromWorld();
+                    minvoDied.removeFromWorld();
                 }, Duration.seconds(0.5));
             }
         });
@@ -374,6 +394,19 @@ public class BombermanApp extends GameApplication {
                 Entity dahlDied = spawn("dahlDied", dahl.getX(), dahl.getY());
                 getGameTimer().runOnceAfter(() -> {
                     dahlDied.removeFromWorld();
+                }, Duration.seconds(0.5));
+            }
+        });
+
+        onCollision(DORIA, FLAME, (doria, flame) -> {
+            if (Math.abs(flame.getPosition().getX() - doria.getPosition().getX()) < 20 &&
+                    Math.abs(flame.getPosition().getY() - doria.getPosition().getY()) < 20) {
+                doria.removeFromWorld();
+                inc("score", +300);
+
+                Entity doriaDied = spawn("onealDied", doria.getX(), doria.getY());
+                getGameTimer().runOnceAfter(() -> {
+                    doriaDied.removeFromWorld();
                 }, Duration.seconds(0.5));
             }
         });

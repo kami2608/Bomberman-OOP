@@ -110,6 +110,13 @@ public class BombComponent extends Component {
                                 enemyDied.removeFromWorld();
                             }, Duration.seconds(0.5));
                         }
+                        else if(e.isType(DORIA)) {
+                            incScore(300);
+                            Entity doriaDied = spawn("onealDied", e.getX(), e.getY());
+                            getGameTimer().runOnceAfter(() -> {
+                                doriaDied.removeFromWorld();
+                            }, Duration.seconds(0.5));
+                        }
                         if (e.isType(BRICK)) {
                             count_brick++;
                             System.out.println(count_brick);

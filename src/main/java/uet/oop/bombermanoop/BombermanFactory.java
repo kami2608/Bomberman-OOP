@@ -25,6 +25,7 @@ import uet.oop.bombermanoop.components.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
 import static uet.oop.bombermanoop.BombermanApp.*;
 import static uet.oop.bombermanoop.BombermanType.*;
+import static uet.oop.bombermanoop.components.DoriaComponent.follow;
 
 public class BombermanFactory implements EntityFactory{
 
@@ -165,6 +166,21 @@ public class BombermanFactory implements EntityFactory{
                 .with(new CellMoveComponent(TILE_SIZE, TILE_SIZE, ENEMY_SPEED))
                 .with(new AStarMoveComponent(FXGL.<BombermanApp>getAppCast().getGrid()))
                 .with(new OnealComponent())
+                .build();
+    }
+
+    @Spawns("doria")
+    public Entity newDoria(SpawnData data) {
+        return entityBuilder(data)
+                .type(DORIA)
+                .atAnchored(new Point2D(20, 20), new Point2D(20, 20))
+                .at(new Point2D(data.getX(), data.getY()))
+                .bbox(new HitBox(new Point2D(5, 5), BoundingShape.circle(18)))
+                .with(new CollidableComponent(true))
+                .with(new CellMoveComponent(TILE_SIZE, TILE_SIZE, ENEMY_SPEED))
+                //.with(new AStarMoveComponent(follow == true ? FXGL.<BombermanApp>getAppCast().getGrid2() : FXGL.<BombermanApp>getAppCast().getGrid()))
+                .with(new AStarMoveComponent(FXGL.<BombermanApp>getAppCast().getGrid2()))
+                .with(new DoriaComponent())
                 .build();
     }
 
