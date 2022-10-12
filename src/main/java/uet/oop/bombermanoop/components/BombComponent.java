@@ -103,6 +103,13 @@ public class BombComponent extends Component {
                                 onealDied.removeFromWorld();
                             }, Duration.seconds(0.5));
                         }
+                        else if(e.isType(MINVO)) {
+                            incScore(250);
+                            Entity enemyDied = spawn("enemyDied", e.getX(), e.getY());
+                            getGameTimer().runOnceAfter(() -> {
+                                enemyDied.removeFromWorld();
+                            }, Duration.seconds(0.5));
+                        }
                         if (e.isType(BRICK)) {
                             count_brick++;
                             System.out.println(count_brick);
@@ -112,6 +119,7 @@ public class BombComponent extends Component {
                                 spawn("flameItem", e.getX(), e.getY());
                             } else if (count_brick == 15) {
                                 spawn("portal", e.getX(), e.getY());
+                                spawn("minvo", 40, 80);
                             } else if (count_brick == 20) {
                                 spawn("speedItem", e.getX(), e.getY());
                             } else {

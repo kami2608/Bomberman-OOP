@@ -34,7 +34,7 @@ public class OnealComponent extends EnemyComponent {
         Image image = image("oneal.png");
 
         animIdle = new AnimationChannel(image, 6, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 0, 0);
-        animWalk = new AnimationChannel(image, 6, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 0, 2);
+        animWalk = new AnimationChannel(image, 6, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 0, 5);
 
         texture = new AnimatedTexture(animIdle);
 

@@ -224,6 +224,14 @@ public class BombermanApp extends GameApplication {
             }
         });
 
+        onCollision(PLAYER, MINVO, (player, minvo) -> {
+            if (Math.abs(player.getPosition().getX() - minvo.getPosition().getX()) < 20 &&
+                    Math.abs(player.getPosition().getY() - minvo.getPosition().getY()) < 20) {
+                System.out.println("player die ne");
+                hitTaken(player);
+            }
+        });
+
         onCollision(PLAYER, PASS, (player, pass) -> {
             if (Math.abs(player.getPosition().getX() - pass.getPosition().getX()) < 20 &&
                     Math.abs(player.getPosition().getY() - pass.getPosition().getY()) < 20) {
@@ -312,14 +320,14 @@ public class BombermanApp extends GameApplication {
             }
         });
 
-        onCollision(PASS, FLAME, (enemy, flame) -> {
-            if (Math.abs(flame.getPosition().getX() - enemy.getPosition().getX()) < 20 &&
-                    Math.abs(flame.getPosition().getY() - enemy.getPosition().getY()) < 20) {
+        onCollision(PASS, FLAME, (pass, flame) -> {
+            if (Math.abs(flame.getPosition().getX() - pass.getPosition().getX()) < 20 &&
+                    Math.abs(flame.getPosition().getY() - pass.getPosition().getY()) < 20) {
                 System.out.println("enemy die ne");
-                enemy.removeFromWorld();
+                pass.removeFromWorld();
                 inc("score", +200);
 
-                Entity enemyDied = spawn("enemyDied", enemy.getX(), enemy.getY());
+                Entity enemyDied = spawn("enemyDied", pass.getX(), pass.getY());
                 getGameTimer().runOnceAfter(() -> {
                     enemyDied.removeFromWorld();
                     spawn("enemy", new SpawnData(40, 80));
@@ -340,6 +348,19 @@ public class BombermanApp extends GameApplication {
                 Entity onealDied = spawn("onealDied", oneal.getX(), oneal.getY());
                 getGameTimer().runOnceAfter(() -> {
                     onealDied.removeFromWorld();
+                }, Duration.seconds(0.5));
+            }
+        });
+
+        onCollision(MINVO, FLAME, (minvo, flame) -> {
+            if (Math.abs(flame.getPosition().getX() - minvo.getPosition().getX()) < 20 &&
+                    Math.abs(flame.getPosition().getY() - minvo.getPosition().getY()) < 20) {
+                minvo.removeFromWorld();
+                inc("score", +250);
+
+                Entity enemyDied = spawn("enemyDied", minvo.getX(), minvo.getY());
+                getGameTimer().runOnceAfter(() -> {
+                    enemyDied.removeFromWorld();
                 }, Duration.seconds(0.5));
             }
         });
