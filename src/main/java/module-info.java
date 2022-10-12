@@ -7,6 +7,7 @@ module uet.oop.bombermanoop {
     opens uet.oop.bombermanoop to javafx.fxml;
     opens assets.levels;
     opens assets.textures;
+    opens assets.sounds;
     exports uet.oop.bombermanoop;
     exports uet.oop.bombermanoop.components;
 }

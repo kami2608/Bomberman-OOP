@@ -36,6 +36,7 @@ public class BombComponent extends Component {
     }
 
     public void explode(double x, double y, Entity bomb) {
+        play("explosion.wav");
         FXGL.getGameTimer().runOnceAfter(bomb::removeFromWorld, Duration.seconds(0.2));
 
         removeEntityXRight(x, y);
@@ -79,9 +80,9 @@ public class BombComponent extends Component {
                             } else if (count_brick == 10) {
                                 spawn("flameItem", e.getX(), e.getY());
                             } else if (count_brick == 15) {
-                                spawn("speedItem", e.getX(), e.getY());
-                            } else if (count_brick == 20) {
                                 spawn("portal", e.getX(), e.getY());
+                            } else if (count_brick == 20) {
+                                spawn("speedItem", e.getX(), e.getY());
                             } else {
                                 Entity brickExplode = spawn("brick", e.getX(), e.getY());
                                 getGameTimer().runOnceAfter(() -> {

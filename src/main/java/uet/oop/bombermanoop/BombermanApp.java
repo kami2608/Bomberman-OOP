@@ -44,8 +44,8 @@ public class BombermanApp extends GameApplication {
     public static int MAX_LEVEL = 3;
 
     public static final int HEIGHT = 600;
-    public static final int WIDTH = 1200;
-    public static final int MAX_WIDTH = 46 * 40;
+    public static final int WIDTH = 600;
+    public static final int MAX_WIDTH = 600;
 
     private static Entity player;
     private static AStarGrid grid;
@@ -82,26 +82,26 @@ public class BombermanApp extends GameApplication {
     @Override
     protected void initUI() {
 
-        Text levelText = getUIFactoryService().newText("", Color.WHITE, 30);
-        levelText.setTranslateX(20);
+        Text levelText = getUIFactoryService().newText("", Color.WHITE, 25);
+        levelText.setTranslateX(10);
         levelText.setTranslateY(30);
         levelText.textProperty().bind(getip("level").asString("Level: %d"));
         addUINode(levelText);
 
-        Text lifeText = getUIFactoryService().newText("", Color.WHITE, 30);
-        lifeText.setTranslateX(300);
+        Text lifeText = getUIFactoryService().newText("", Color.WHITE, 25);
+        lifeText.setTranslateX(180);
         lifeText.setTranslateY(30);
         lifeText.textProperty().bind(getip("life").asString("♥ [%d]"));
         addUINode(lifeText);
 
-        Text timerText = getUIFactoryService().newText("", Color.WHITE, 30);
-        timerText.setTranslateX(600);
+        Text timerText = getUIFactoryService().newText("", Color.WHITE, 25);
+        timerText.setTranslateX(300);
         timerText.setTranslateY(30);
         timerText.textProperty().bind(getdp("time").asString("Time: %.0f"));
         addUINode(timerText);
 
-        Text scoreText = getUIFactoryService().newText("", Color.WHITE, 30);
-        scoreText.setTranslateX(900);
+        Text scoreText = getUIFactoryService().newText("", Color.WHITE, 25);
+        scoreText.setTranslateX(450);
         scoreText.setTranslateY(30);
         scoreText.textProperty().bind(getip("score").asString("Score: %d"));
         addUINode(scoreText);
@@ -155,8 +155,10 @@ public class BombermanApp extends GameApplication {
         getInput().addAction(new UserAction("Place Bomb") {
             @Override
             protected void onActionBegin() {
-                if (!is_died)
+                if (!is_died) {
+                    play("place_bomb.wav");
                     playerComponent.placeBomb();
+                }
             }
         }, KeyCode.SPACE);
     }
@@ -169,6 +171,7 @@ public class BombermanApp extends GameApplication {
 
     public void init() {
         is_died = false;
+        play("next_level.wav");
         Level level = getAssetLoader().loadLevel(geti("level") + ".txt", new TextLevelLoader(40, 40, '0'));
         getGameWorld().setLevel(level);
         spawn("BG");
@@ -186,12 +189,13 @@ public class BombermanApp extends GameApplication {
         spawn("enemy", new SpawnData(160, 80));
         spawn("enemy", new SpawnData(480, 80));
         spawn("oneal", new SpawnData(480, 480));
-        spawn("oneal", new SpawnData(280, 280));
+        spawn("oneal", new SpawnData(240, 280));
+        spawn("enemy", new SpawnData(480, 300));
 
-        Viewport viewport = getGameScene().getViewport();
-        viewport.setBounds(0, 0, MAX_WIDTH, HEIGHT);
-        viewport.bindToEntity(player, getAppWidth() / 2, getAppHeight() / 2);
-        viewport.setLazy(true);
+//        Viewport viewport = getGameScene().getViewport();
+//        viewport.setBounds(0, 0, MAX_WIDTH, HEIGHT);
+//        viewport.bindToEntity(player, getAppWidth() / 2, getAppHeight() / 2);
+//        viewport.setLazy(true);
 
         set("time", 200.0);
         set("score", 0);
@@ -239,6 +243,7 @@ public class BombermanApp extends GameApplication {
             if (Math.abs(bombItem.getPosition().getX() - player.getPosition().getX()) < 20 &&
                     Math.abs(bombItem.getPosition().getY() - player.getPosition().getY()) < 20) {
                 System.out.println("hi");
+                play("powerup.wav");
                 bombItem.removeFromWorld();
                 increaseBombsMaximum();
             }
@@ -247,6 +252,7 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, FLAMEITEM, (player, flameItem) -> {
             if (Math.abs(flameItem.getPosition().getX() - player.getPosition().getX()) < 20 &&
                     Math.abs(flameItem.getPosition().getY() - player.getPosition().getY()) < 20) {
+                play("powerup.wav");
                 flameItem.removeFromWorld();
                 increaseExplosionRadius();
             }
@@ -255,6 +261,7 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, SPEEDITEM, (player, speedItem) -> {
             if (Math.abs(speedItem.getPosition().getX() - player.getPosition().getX()) < 20 &&
                     Math.abs(speedItem.getPosition().getY() - player.getPosition().getY()) < 20) {
+                play("powerup.wav");
                 speedItem.removeFromWorld();
                 playerComponent.increasePlayerSpeed();
             }
@@ -264,6 +271,7 @@ public class BombermanApp extends GameApplication {
             if (Math.abs(door.getPosition().getX() - player.getPosition().getX()) < 20 &&
                     Math.abs(door.getPosition().getY() - player.getPosition().getY()) < 20 &&
                     !is_died && getGameWorld().getGroup(ENEMY, ONEAL).getSize() == 0) {
+                play("stage_start.wav");
                 door.removeFromWorld();
                 //spawn("portal", door.getX(), door.getY());
                 getGameTimer().runOnceAfter(() -> {
@@ -303,6 +311,7 @@ public class BombermanApp extends GameApplication {
 
     public void hitTaken(Entity player) {
         is_died = true;
+        play("player_die.wav");
         player.removeFromWorld();
         Entity playerDied = spawn("playerDied", player.getX(), player.getY());
         getGameTimer().runOnceAfter(() -> {
