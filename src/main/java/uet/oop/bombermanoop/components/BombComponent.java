@@ -119,7 +119,6 @@ public class BombComponent extends Component {
                         }
                         if (e.isType(BRICK)) {
                             count_brick++;
-                            System.out.println(count_brick);
                             if (count_brick == 5) {
                                 spawn("bombItem", e.getX(), e.getY());
                             } else if (count_brick == 10) {

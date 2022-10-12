@@ -44,8 +44,8 @@ public class BombermanApp extends GameApplication {
     public static int MAX_LEVEL = 3;
 
     public static final int HEIGHT = 600;
-    public static final int WIDTH = 600;
-    public static final int MAX_WIDTH = 600;
+    public static final int WIDTH = 800;
+    public static int MAX_WIDTH = WIDTH;
 
     private static Entity player;
     private static AStarGrid grid;
@@ -100,13 +100,13 @@ public class BombermanApp extends GameApplication {
         addUINode(lifeText);
 
         Text timerText = getUIFactoryService().newText("", Color.WHITE, 25);
-        timerText.setTranslateX(260);
+        timerText.setTranslateX(360);
         timerText.setTranslateY(30);
         timerText.textProperty().bind(getdp("time").asString("Time: %.0f"));
         addUINode(timerText);
 
         Text scoreText = getUIFactoryService().newText("", Color.WHITE, 25);
-        scoreText.setTranslateX(430);
+        scoreText.setTranslateX(600);
         scoreText.setTranslateY(30);
         scoreText.textProperty().bind(getip("score").asString("Score: %d"));
         addUINode(scoreText);
@@ -176,6 +176,7 @@ public class BombermanApp extends GameApplication {
 
     public void init() {
         is_died = false;
+
         play("next_level.wav");
         Level level = getAssetLoader().loadLevel(geti("level") + ".txt", new TextLevelLoader(40, 40, '0'));
         getGameWorld().setLevel(level);
@@ -198,19 +199,42 @@ public class BombermanApp extends GameApplication {
         player = FXGL.spawn("player");
         playerComponent = player.getComponent(PlayerComponent.class);
 
-        spawn("enemy", new SpawnData(160, 80));
-        spawn("pass", new SpawnData(480, 80));
-        spawn("oneal", new SpawnData(480, 480));
-        spawn("doria", new SpawnData(240, 280));
-        spawn("dahl", new SpawnData(480, 300));
+        switch (geti("level")) {
+            case 1:
+                spawn("enemy", new SpawnData(160, 80));
+                spawn("enemy", new SpawnData(480, 80));
+                spawn("oneal", new SpawnData(480, 480));
+                spawn("oneal", new SpawnData(700, 300));
+                spawn("enemy", new SpawnData(480, 300));
+                break;
+            case 2:
+                spawn("enemy", new SpawnData(300, 80));
+                spawn("pass", new SpawnData(800, 80));
+                spawn("oneal", new SpawnData(480, 480));
+                spawn("enemy", new SpawnData(700, 300));
+                spawn("dahl", new SpawnData(480, 300));
+                spawn("oneal", new SpawnData(1000, 480));
+                break;
+            case 3:
+                spawn("enemy", new SpawnData(300, 80));
+                spawn("enemy", new SpawnData(160, 80));
+                spawn("pass", new SpawnData(800, 80));
+                spawn("oneal", new SpawnData(480, 480));
+                spawn("enemy", new SpawnData(700, 300));
+                spawn("dahl", new SpawnData(480, 300));
+                spawn("oneal", new SpawnData(1000, 480));
+                spawn("doria", new SpawnData(1100, 300));
+                break;
+        }
 
-//        Viewport viewport = getGameScene().getViewport();
-//        viewport.setBounds(0, 0, MAX_WIDTH, HEIGHT);
-//        viewport.bindToEntity(player, getAppWidth() / 2, getAppHeight() / 2);
-//        viewport.setLazy(true);
+
+        Viewport viewport = getGameScene().getViewport();
+        viewport.setBounds(0, 0, MAX_WIDTH, HEIGHT);
+        viewport.bindToEntity(player, getAppWidth() / 2, getAppHeight() / 2);
+        viewport.setLazy(true);
 
         set("time", 200.0);
-        set("score", 0);
+        if(geti("level") == 1) set("score", 0);
         count_brick = 0;
 
     }
@@ -222,6 +246,17 @@ public class BombermanApp extends GameApplication {
         }
         count_brick = 0;
         inc("level", +1);
+        switch (geti("level")) {
+            case 1:
+                MAX_WIDTH = 800;
+                break;
+            case 2:
+                MAX_WIDTH = 1200;
+                break;
+            case 3:
+                MAX_WIDTH = 1600;
+                break;
+        }
         init();
     }
 
@@ -231,7 +266,6 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, ENEMY, (player, enemy) -> {
             if (Math.abs(player.getPosition().getX() - enemy.getPosition().getX()) < 20 &&
                     Math.abs(player.getPosition().getY() - enemy.getPosition().getY()) < 20) {
-                System.out.println("player die ne");
                 hitTaken(player);
             }
         });
@@ -239,7 +273,6 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, MINVO, (player, minvo) -> {
             if (Math.abs(player.getPosition().getX() - minvo.getPosition().getX()) < 20 &&
                     Math.abs(player.getPosition().getY() - minvo.getPosition().getY()) < 20) {
-                System.out.println("player die ne");
                 hitTaken(player);
             }
         });
@@ -247,7 +280,6 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, PASS, (player, pass) -> {
             if (Math.abs(player.getPosition().getX() - pass.getPosition().getX()) < 20 &&
                     Math.abs(player.getPosition().getY() - pass.getPosition().getY()) < 20) {
-                System.out.println("player die ne");
                 hitTaken(player);
             }
         });
@@ -255,7 +287,6 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, ONEAL, (player, oneal) -> {
             if (Math.abs(player.getPosition().getX() - oneal.getPosition().getX()) < 20 &&
                     Math.abs(player.getPosition().getY() - oneal.getPosition().getY()) < 20) {
-                System.out.println("player die ne");
                 hitTaken(player);
             }
         });
@@ -263,7 +294,6 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, DAHL, (player, dahl) -> {
             if (Math.abs(player.getPosition().getX() - dahl.getPosition().getX()) < 20 &&
                     Math.abs(player.getPosition().getY() - dahl.getPosition().getY()) < 20) {
-                System.out.println("player die ne");
                 hitTaken(player);
             }
         });
@@ -271,7 +301,6 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, DORIA, (player, doria) -> {
             if (Math.abs(player.getPosition().getX() - doria.getPosition().getX()) < 20 &&
                     Math.abs(player.getPosition().getY() - doria.getPosition().getY()) < 20) {
-                System.out.println("player die ne");
                 hitTaken(player);
             }
         });
@@ -279,7 +308,6 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, FLAME, (player, flame) -> {
             if (Math.abs(flame.getPosition().getX() - player.getPosition().getX()) < 20 &&
                     Math.abs(flame.getPosition().getY() - player.getPosition().getY()) < 20) {
-                System.out.println("player die ne 2");
                 hitTaken(player);
             }
         });
@@ -287,7 +315,6 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, BOMBITEM, (player, bombItem) -> {
             if (Math.abs(bombItem.getPosition().getX() - player.getPosition().getX()) < 20 &&
                     Math.abs(bombItem.getPosition().getY() - player.getPosition().getY()) < 20) {
-                System.out.println("hi");
                 play("powerup.wav");
                 bombItem.removeFromWorld();
                 increaseBombsMaximum();
@@ -315,7 +342,7 @@ public class BombermanApp extends GameApplication {
         onCollision(PLAYER, DOOR, (player, door) -> {
             if (Math.abs(door.getPosition().getX() - player.getPosition().getX()) < 20 &&
                     Math.abs(door.getPosition().getY() - player.getPosition().getY()) < 20 &&
-                    !is_died && getGameWorld().getGroup(ENEMY, ONEAL).getSize() == 0) {
+                    !is_died && getGameWorld().getGroup(ENEMY, ONEAL, MINVO, PASS, DORIA, DAHL).getSize() == 0) {
                 play("stage_start.wav");
                 door.removeFromWorld();
                 //spawn("portal", door.getX(), door.getY());
@@ -329,7 +356,6 @@ public class BombermanApp extends GameApplication {
         onCollision(ENEMY, FLAME, (enemy, flame) -> {
             if (Math.abs(flame.getPosition().getX() - enemy.getPosition().getX()) < 20 &&
                     Math.abs(flame.getPosition().getY() - enemy.getPosition().getY()) < 20) {
-                System.out.println("enemy die ne");
                 enemy.removeFromWorld();
                 inc("score", +100);
 
@@ -343,7 +369,6 @@ public class BombermanApp extends GameApplication {
         onCollision(PASS, FLAME, (pass, flame) -> {
             if (Math.abs(flame.getPosition().getX() - pass.getPosition().getX()) < 20 &&
                     Math.abs(flame.getPosition().getY() - pass.getPosition().getY()) < 20) {
-                System.out.println("enemy die ne");
                 pass.removeFromWorld();
                 inc("score", +200);
 
@@ -352,7 +377,6 @@ public class BombermanApp extends GameApplication {
                     passDied.removeFromWorld();
                     spawn("enemy", new SpawnData(40, 80));
                     spawn("enemy", new SpawnData(80, 80));
-                    System.out.println("2 enemy");
                 }, Duration.seconds(0.5));
 
 
