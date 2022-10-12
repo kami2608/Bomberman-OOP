@@ -322,7 +322,12 @@ public class BombermanApp extends GameApplication {
                 Entity enemyDied = spawn("enemyDied", enemy.getX(), enemy.getY());
                 getGameTimer().runOnceAfter(() -> {
                     enemyDied.removeFromWorld();
+                    spawn("enemy", new SpawnData(40, 80));
+                    spawn("enemy", new SpawnData(80, 80));
+                    System.out.println("2 enemy");
                 }, Duration.seconds(0.5));
+
+
             }
         });
 

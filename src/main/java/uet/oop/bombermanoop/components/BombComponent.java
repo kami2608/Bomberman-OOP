@@ -2,6 +2,7 @@ package uet.oop.bombermanoop.components;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.pathfinding.CellState;
 import javafx.geometry.Point2D;
@@ -71,20 +72,46 @@ public class BombComponent extends Component {
                         if(e.isType(PLAYER)) {
                             FXGL.<BombermanApp>getAppCast().hitTaken(e);
                         }
-                        if(e.isType(ENEMY)) incScore(100);
-                        else if(e.isType(DAHL)) incScore(150);
-                        else if(e.isType(PASS)) incScore(200);
-                        else if(e.isType(ONEAL)) incScore(250);
+                        if(e.isType(ENEMY)) {
+                            incScore(100);
+                            Entity enemyDied = spawn("enemyDied", e.getX(), e.getY());
+                            getGameTimer().runOnceAfter(() -> {
+                                enemyDied.removeFromWorld();
+                            }, Duration.seconds(0.5));
+                        }
+                        else if(e.isType(DAHL)) {
+                            incScore(150);
+                            Entity dahlDied = spawn("dahlDied", e.getX(), e.getY());
+                            getGameTimer().runOnceAfter(() -> {
+                                dahlDied.removeFromWorld();
+                            }, Duration.seconds(0.5));
+                        }
+                        else if(e.isType(PASS)) {
+                            incScore(200);
+                            Entity enemyDied = spawn("enemyDied", e.getX(), e.getY());
+                            getGameTimer().runOnceAfter(() -> {
+                                enemyDied.removeFromWorld();
+                                spawn("enemy", new SpawnData(40, 80));
+                                spawn("enemy", new SpawnData(80, 80));
+                                System.out.println("2 enemy");
+                            }, Duration.seconds(0.5));
+                        }
+                        else if(e.isType(ONEAL)) {
+                            incScore(250);
+                            Entity onealDied = spawn("onealDied", e.getX(), e.getY());
+                            getGameTimer().runOnceAfter(() -> {
+                                onealDied.removeFromWorld();
+                            }, Duration.seconds(0.5));
+                        }
                         if (e.isType(BRICK)) {
                             count_brick++;
                             System.out.println(count_brick);
                             if (count_brick == 5) {
-                                spawn("portal", e.getX(), e.getY());
-
+                                spawn("bombItem", e.getX(), e.getY());
                             } else if (count_brick == 10) {
                                 spawn("flameItem", e.getX(), e.getY());
                             } else if (count_brick == 15) {
-                                spawn("bombItem", e.getX(), e.getY());
+                                spawn("portal", e.getX(), e.getY());
                             } else if (count_brick == 20) {
                                 spawn("speedItem", e.getX(), e.getY());
                             } else {

@@ -30,4 +30,7 @@ public class PassComponent extends EnemyComponent{
         entity.getViewComponent().addChild(texture);
 
     }
+
+    @Override
+    public void onUpdate(double tpf) {};
 }
