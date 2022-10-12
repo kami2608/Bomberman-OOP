@@ -1,2 +1,4 @@
-package uet.oop.bombermanoop.components;public class DoriaComponent {
+package uet.oop.bombermanoop.components;
+
+public class DoriaComponent {
 }

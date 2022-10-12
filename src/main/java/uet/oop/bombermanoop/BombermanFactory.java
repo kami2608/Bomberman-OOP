@@ -20,10 +20,7 @@ import javafx.scene.control.Cell;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-import uet.oop.bombermanoop.components.BombComponent;
-import uet.oop.bombermanoop.components.EnemyComponent;
-import uet.oop.bombermanoop.components.OnealComponent;
-import uet.oop.bombermanoop.components.PlayerComponent;
+import uet.oop.bombermanoop.components.*;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 import static uet.oop.bombermanoop.BombermanApp.*;
@@ -169,6 +166,20 @@ public class BombermanFactory implements EntityFactory{
                 .build();
     }
 
+    @Spawns("dahl")
+    public Entity newDahl(SpawnData data) {
+        return entityBuilder(data)
+                .type(DAHL)
+                .atAnchored(new Point2D(20, 20), new Point2D(20, 20))
+                .at(new Point2D(data.getX(), data.getY()))
+                .bbox(new HitBox(new Point2D(5, 5), BoundingShape.circle(18)))
+                .with(new CollidableComponent(true))
+                .with(new CellMoveComponent(TILE_SIZE, TILE_SIZE, ENEMY_SPEED))
+                .with(new AStarMoveComponent(FXGL.<BombermanApp>getAppCast().getGrid()))
+                .with(new DahlComponent())
+                .build();
+    }
+
     @Spawns("flame")
     public Entity newFlame(SpawnData data) {
 
@@ -199,6 +210,13 @@ public class BombermanFactory implements EntityFactory{
     public Entity newOnealDied(SpawnData data) {
         return entityBuilder(data)
                 .view(texture("onealDied.png").toAnimatedTexture(4, Duration.seconds(1)).play())
+                .build();
+    }
+
+    @Spawns("dahlDied")
+    public Entity newDahlDied(SpawnData data) {
+        return entityBuilder(data)
+                .view(texture("dahlDied.png").toAnimatedTexture(4, Duration.seconds(1)).play())
                 .build();
     }
 

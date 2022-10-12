@@ -1,2 +1,4 @@
-package uet.oop.bombermanoop.components;public class PassComponent {
+package uet.oop.bombermanoop.components;
+
+public class PassComponent {
 }

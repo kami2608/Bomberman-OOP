@@ -72,6 +72,7 @@ public class BombComponent extends Component {
                             FXGL.<BombermanApp>getAppCast().hitTaken(e);
                         }
                         if(e.isType(ENEMY)) incScore(100);
+                        else if(e.isType(DAHL)) incScore(150);
                         else if(e.isType(ONEAL)) incScore(200);
                         if (e.isType(BRICK)) {
                             count_brick++;
